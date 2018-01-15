@@ -1,0 +1,13 @@
+{
+    "name": "giberti/ext-oauth-shim",
+    "description": "An implementation of the pecl OAuth extension in PHP for shared hosts that don't provide it",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Erik Giberti",
+            "homepage": "https://github.com/giberti"
+        }
+    ],
+    "require": {}
+}
