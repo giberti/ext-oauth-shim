@@ -82,7 +82,7 @@ if (!function_exists('oauth_urlencode')) {
      *
      * @see http://php.net/manual/en/function.oauth-urlencode.php
      *
-     * @param $uri
+     * @param string $uri
      *
      * @return string
      */
