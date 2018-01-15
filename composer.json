@@ -9,5 +9,25 @@
             "homepage": "https://github.com/giberti"
         }
     ],
-    "require": {}
+    "require": {
+        "ext-curl": "*",
+        "php": ">=7.0"
+    },
+    "require-dev": {
+        "giberti/phpunit-local-server": "^0.1",
+        "phpunit/phpunit": "^6.5"
+    },
+    "suggest": {
+        "ext-oauth": "You should use the pecl OAuth extension, install with `pecl install oauth`"
+    },
+    "provides": {
+        "ext-oauth": "*"
+    },
+    "autoload": {
+        "files": [
+            "src/classes.php",
+            "src/constants.php",
+            "src/functions.php"
+        ]
+    }
 }
