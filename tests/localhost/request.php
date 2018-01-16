@@ -54,17 +54,36 @@ $provider->setRequestTokenPath('/request-token.php');
 try {
     $provider->checkOAuthRequest();
 } catch (OAuthException $e) {
-    header('HTTP/1.1 400 Bad Request');
-    header('Content-type: text/plain');
-    echo $e->getMessage();
+    // Set an appropriate header
+    switch ($e->getCode()) {
+        case OAUTH_CONSUMER_KEY_REFUSED:
+        case OAUTH_CONSUMER_KEY_UNKNOWN:
+        case OAUTH_TOKEN_EXPIRED:
+        case OAUTH_TOKEN_REJECTED:
+        case OAUTH_TOKEN_USED:
+        case OAUTH_VERIFIER_INVALID:
+            header('HTTP/1.1 401 Unauthorized');
+            break;
+
+        case OAUTH_BAD_NONCE:
+        case OAUTH_BAD_TIMESTAMP:
+        case OAUTH_INVALID_SIGNATURE:
+        case OAUTH_SIGNATURE_METHOD_REJECTED:
+        default:
+            header('HTTP/1.1 400 Bad Request');
+    }
+
+    echo 'OAuthException: ' . $e->getCode() . ': ' .$e->getMessage();
     return;
 }
 
-header('HTTP/1.1 200 OK');
+$status = isset($_GET['status']) ? $_GET['status'] : 200;
+header('HTTP/1.1 ' . $status);
 header('Content-type: application/json');
 $data = [
-    'get' => $_GET,
-    'post' => $_POST
+    'get'   => $_GET,
+    'post'  => $_POST,
+    'input' => file_get_contents('php://input'),
 ];
 
 echo json_encode($data);

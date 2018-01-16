@@ -151,8 +151,10 @@ class ClientTest extends LocalServerTestCase
         $this->assertTrue(is_array($data));
         $this->assertArrayHasKey('get', $data);
         $this->assertArrayHasKey('post', $data);
+        $this->assertArrayHasKey('input', $data);
         $this->assertEmpty($data['get']);
         $this->assertEmpty($data['post']);
+        $this->assertEmpty($data['input']);
     }
 
     /**
