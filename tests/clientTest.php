@@ -145,6 +145,22 @@ class ClientTest extends LocalServerTestCase
         $this->assertEmpty($data['input']);
     }
 
+    /**
+     * @depends test_fetch_get
+     */
+    public function test_fetch_only_url()
+    {
+        $client = $this->getClient('consumer');
+        $client->setToken('token', static::$tokens['access-tokens']['token']);
+
+        $requestUrl = $this->getLocalServerUrl() . '/request.php';
+        $client->fetch($requestUrl);
+
+        $raw  = $client->getLastResponse();
+        $data = json_decode($raw, true);
+        $this->assertTrue(is_array($data));
+    }
+
     public function provideStatusCodes()
     {
         return [
