@@ -117,11 +117,7 @@ class ClientTest extends LocalServerTestCase
 
         // Check info for expected keys
         $responseInfo = $client->getLastResponseInfo();
-        foreach ($responseInfo as $key => $value) {
-            // Remove the '\u0000' at the end of each key
-            unset($responseInfo[$key]);
-            $responseInfo[trim($key)] = trim($value);
-        }
+        $this->normalizeResponseInfo($responseInfo);
         $this->assertTrue(is_array($responseInfo));
         $this->assertArrayHasKey('url', $responseInfo);
         $this->assertArrayHasKey('http_code', $responseInfo);
@@ -130,16 +126,7 @@ class ClientTest extends LocalServerTestCase
 
         // Parse and check headers for expected values
         $responseHeaders = $client->getLastResponseHeaders();
-        $headerLines = explode("\n", $responseHeaders);
-        $headers = [];
-        foreach ($headerLines as $header) {
-            $header = trim($header);
-            $pieces = explode(': ', $header);
-            if (count($pieces) > 1) {
-                $name = trim(array_shift($pieces));
-                $headers[strtolower($name)] = trim(implode(': ', $pieces));
-            }
-        }
+        $headers = $this->parseResponseHeaders($responseHeaders);
         $this->assertArrayHasKey('host', $headers);
         $this->assertArrayHasKey('date', $headers);
         $this->assertArrayHasKey('connection', $headers);
@@ -201,5 +188,38 @@ class ClientTest extends LocalServerTestCase
      */
     private function getClient($consumer) {
         return new OAuth($consumer, static::$tokens['consumer-tokens'][$consumer]);
+    }
+
+    /**
+     * Remove the '\u0000' at the end of each key
+     *
+     * @param $responseInfo
+     */
+    private function normalizeResponseInfo(&$responseInfo) {
+        foreach ($responseInfo as $key => $value) {
+            unset($responseInfo[$key]);
+            $responseInfo[trim($key)] = trim($value);
+        }
+    }
+
+    /**
+     * Break up the HTTP header into key/value pairs
+     *
+     * @param string $responseHeader
+     *
+     * @return array
+     */
+    private function parseResponseHeaders($responseHeader) {
+        $headerLines = explode("\n", $responseHeader);
+        $headers = [];
+        foreach ($headerLines as $header) {
+            $header = trim($header);
+            $pieces = explode(': ', $header);
+            if (count($pieces) > 1) {
+                $name = trim(array_shift($pieces));
+                $headers[strtolower($name)] = trim(implode(': ', $pieces));
+            }
+        }
+        return $headers;
     }
 }
