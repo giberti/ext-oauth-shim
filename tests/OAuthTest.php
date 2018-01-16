@@ -87,8 +87,8 @@ class OAuthTest extends TestCase
      */
     public function test_signatureGeneration_sha1($method, $uri, $params, $sha1Signature, $sha256Signature)
     {
-        $clientSha1    = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA1);
-        $clientSha256  = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA256);
+        $clientSha1   = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA1);
+        $clientSha256 = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA256);
 
         $this->assertEquals($sha1Signature, $clientSha1->generateSignature($method, $uri, $params));
         $this->assertEquals($sha256Signature, $clientSha256->generateSignature($method, $uri, $params));
@@ -96,15 +96,18 @@ class OAuthTest extends TestCase
 
     /**
      * @param $signatureMethod
+     *
      * @return OAuth
      */
-    private function getConfiguredClient($signatureMethod) {
+    private function getConfiguredClient($signatureMethod)
+    {
         $client = new OAuth('consumer', static::$tokens['consumer-tokens']['consumer'], $signatureMethod);
         $client->setToken('token', static::$tokens['access-tokens']['token']);
         // Use a known nonce, timestamp and version
         $client->setNonce('nonce');
         $client->setTimestamp(2);
         $client->setVersion('1.0');
+
         return $client;
     }
 }
