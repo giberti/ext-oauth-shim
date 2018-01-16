@@ -219,6 +219,31 @@ class ClientTest extends LocalServerTestCase
     }
 
     /**
+     * @depends test_fetch_get
+     */
+    public function test_fetch_put_a_file() {
+        $client = $this->getClient('consumer');
+        $client->setToken('token', static::$tokens['access-tokens']['token']);
+
+        $data = [
+            'foo' => 'bar',
+            'bar' => 'baz'
+        ];
+        $json = json_encode($data);
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Content-Length' => strlen($json),
+            'Content-MD5' => md5($json),
+        ];
+        $requestUrl = $this->getLocalServerUrl() . '/request.php';
+        $client->fetch($requestUrl, $json, OAUTH_HTTP_METHOD_PUT, $headers);
+
+        $response = $client->getLastResponse();
+        $data = json_decode($response, true);
+        $this->assertEquals($json, $data['input']);
+    }
+
+    /**
      * @param string $consumer
      *
      * @return OAuth
