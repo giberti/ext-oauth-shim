@@ -15,7 +15,7 @@ class ClientTest extends LocalServerTestCase
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
-        $docRoot = __DIR__ . '/localhost';
+        $docRoot   = __DIR__ . '/localhost';
         $tokenFile = $docRoot . '/tokens.php';
         if (!file_exists($tokenFile)) {
             trigger_error('Unable to read token file');
@@ -30,7 +30,7 @@ class ClientTest extends LocalServerTestCase
         $client = $this->getClient('consumer');
 
         $requestTokenUrl = $this->getLocalServerUrl() . '/request-token.php';
-        $requestToken  = $client->getRequestToken($requestTokenUrl, 'http://example.com/');
+        $requestToken    = $client->getRequestToken($requestTokenUrl, 'http://example.com/');
         $this->assertArrayHasKey('oauth_token', $requestToken);
         $this->assertEquals('request-token', $requestToken['oauth_token']);
         $this->assertArrayHasKey('oauth_token_secret', $requestToken);
@@ -61,7 +61,7 @@ class ClientTest extends LocalServerTestCase
         $client->setToken('request-token', static::$tokens['request-tokens']['request-token']);
 
         $accessTokenUrl = $this->getLocalServerUrl() . '/access-token.php';
-        $accessToken = $client->getAccessToken($accessTokenUrl, null, static::$tokens['request-token-verifier']);
+        $accessToken    = $client->getAccessToken($accessTokenUrl, null, static::$tokens['request-token-verifier']);
         $this->assertArrayHasKey('oauth_token', $accessToken);
         $this->assertEquals('token', $accessToken['oauth_token']);
         $this->assertArrayHasKey('oauth_token_secret', $accessToken);
@@ -108,7 +108,8 @@ class ClientTest extends LocalServerTestCase
         $client->getAccessToken($accessTokenUrl, null, static::$tokens['request-token-verifier']);
     }
 
-    public function test_fetch_get() {
+    public function test_fetch_get()
+    {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
 
@@ -126,14 +127,14 @@ class ClientTest extends LocalServerTestCase
 
         // Parse and check headers for expected values
         $responseHeaders = $client->getLastResponseHeaders();
-        $headers = $this->parseResponseHeaders($responseHeaders);
+        $headers         = $this->parseResponseHeaders($responseHeaders);
         $this->assertArrayHasKey('host', $headers);
         $this->assertArrayHasKey('date', $headers);
         $this->assertArrayHasKey('connection', $headers);
         $this->assertArrayHasKey('x-powered-by', $headers);
 
         // Check response for expected keys
-        $raw = $client->getLastResponse();
+        $raw  = $client->getLastResponse();
         $data = json_decode($raw, true);
         $this->assertTrue(is_array($data));
         $this->assertArrayHasKey('get', $data);
@@ -144,7 +145,8 @@ class ClientTest extends LocalServerTestCase
         $this->assertEmpty($data['input']);
     }
 
-    public function provideStatusCodes() {
+    public function provideStatusCodes()
+    {
         return [
             'OK'                => [200],
             'Created'           => [201],
@@ -159,9 +161,10 @@ class ClientTest extends LocalServerTestCase
 
     /**
      * @dataProvider provideStatusCodes
-     * @depends test_fetch_get
+     * @depends      test_fetch_get
      */
-    public function test_fetch_get_with_status($status) {
+    public function test_fetch_get_with_status($status)
+    {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
 
@@ -173,6 +176,7 @@ class ClientTest extends LocalServerTestCase
             $client->fetch($requestUrl, null, OAUTH_HTTP_METHOD_GET);
         } catch (OAuthException $e) {
             $this->assertEquals($status, $e->getCode(), 'Unexpected HTTP status');
+
             return;
         }
 
@@ -184,7 +188,8 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_get_with_params() {
+    public function test_fetch_get_with_params()
+    {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
 
@@ -203,7 +208,8 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_post_with_params() {
+    public function test_fetch_post_with_params()
+    {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
 
@@ -221,25 +227,26 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_put_a_file() {
+    public function test_fetch_put_a_file()
+    {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
 
-        $data = [
+        $data       = [
             'foo' => 'bar',
-            'bar' => 'baz'
+            'bar' => 'baz',
         ];
-        $json = json_encode($data);
-        $headers = [
-            'Content-Type' => 'application/json',
+        $json       = json_encode($data);
+        $headers    = [
+            'Content-Type'   => 'application/json',
             'Content-Length' => strlen($json),
-            'Content-MD5' => md5($json),
+            'Content-MD5'    => md5($json),
         ];
         $requestUrl = $this->getLocalServerUrl() . '/request.php';
         $client->fetch($requestUrl, $json, OAUTH_HTTP_METHOD_PUT, $headers);
 
         $response = $client->getLastResponse();
-        $data = json_decode($response, true);
+        $data     = json_decode($response, true);
         $this->assertEquals($json, $data['input']);
     }
 
@@ -248,7 +255,8 @@ class ClientTest extends LocalServerTestCase
      *
      * @return OAuth
      */
-    private function getClient($consumer) {
+    private function getClient($consumer)
+    {
         return new OAuth($consumer, static::$tokens['consumer-tokens'][$consumer]);
     }
 
@@ -257,7 +265,8 @@ class ClientTest extends LocalServerTestCase
      *
      * @param $responseInfo
      */
-    private function normalizeResponseInfo(&$responseInfo) {
+    private function normalizeResponseInfo(&$responseInfo)
+    {
         foreach ($responseInfo as $key => $value) {
             unset($responseInfo[$key]);
             $responseInfo[trim($key)] = trim($value);
@@ -271,17 +280,19 @@ class ClientTest extends LocalServerTestCase
      *
      * @return array
      */
-    private function parseResponseHeaders($responseHeader) {
+    private function parseResponseHeaders($responseHeader)
+    {
         $headerLines = explode("\n", $responseHeader);
-        $headers = [];
+        $headers     = [];
         foreach ($headerLines as $header) {
             $header = trim($header);
             $pieces = explode(': ', $header);
             if (count($pieces) > 1) {
-                $name = trim(array_shift($pieces));
+                $name                       = trim(array_shift($pieces));
                 $headers[strtolower($name)] = trim(implode(': ', $pieces));
             }
         }
+
         return $headers;
     }
 }

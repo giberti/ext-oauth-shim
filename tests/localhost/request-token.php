@@ -8,6 +8,7 @@ $provider->consumerHandler(function ($provider) use ($tokens) {
     switch ($provider->consumer_key) {
         case 'consumer':
             $provider->consumer_secret = $tokens['consumer-tokens'][$provider->consumer_key];
+
             return OAUTH_OK;
 
         case 'consumer-refused':
@@ -57,7 +58,8 @@ try {
                 header('HTTP/1.1 400 Bad Request');
         }
 
-        echo 'OAuthException: ' . $e->getCode() . ': ' .$e->getMessage();
+        echo 'OAuthException: ' . $e->getCode() . ': ' . $e->getMessage();
+
         return;
     }
 }
