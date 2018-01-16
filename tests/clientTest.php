@@ -144,6 +144,43 @@ class ClientTest extends LocalServerTestCase
         $this->assertEmpty($data['input']);
     }
 
+    public function provideStatusCodes() {
+        return [
+            'OK'                => [200],
+            'Created'           => [201],
+            'Moved'             => [301],
+            'Moved Permanently' => [302],
+            'Bad Request'       => [400],
+            'Unauthorized'      => [401],
+            'Not Found'         => [404],
+            'Server Error'      => [500],
+        ];
+    }
+
+    /**
+     * @dataProvider provideStatusCodes
+     * @depends test_fetch_get
+     */
+    public function test_fetch_get_with_status($status) {
+        $client = $this->getClient('consumer');
+        $client->setToken('token', static::$tokens['access-tokens']['token']);
+
+        // This will test redirect codes, so don't try to follow them!
+        $client->disableRedirects();
+        $requestUrl = $this->getLocalServerUrl() . '/request.php?status=' . $status;
+
+        try {
+            $client->fetch($requestUrl, null, OAUTH_HTTP_METHOD_GET);
+        } catch (OAuthException $e) {
+            $this->assertEquals($status, $e->getCode(), 'Unexpected HTTP status');
+            return;
+        }
+
+        $info = $client->getLastResponseInfo();
+        $this->normalizeResponseInfo($info);
+        $this->assertEquals($status, $info['http_code'], 'Unexpected HTTP status');
+    }
+
     /**
      * @depends test_fetch_get
      */
