@@ -267,6 +267,57 @@ class ClientTest extends LocalServerTestCase
     }
 
     /**
+     * @depends test_fetch_get
+     */
+    public function test_fetch_get_expecting_error()
+    {
+        $client = $this->getClient('consumer');
+        $client->setToken('token', 'not-the-actual-secret');
+
+        $e   = null;
+        $url = $this->getLocalServerUrl() . '/request.php';
+        try {
+            $client->fetch($url);
+        } catch (OAuthException $e) {
+        }
+
+        $this->assertInstanceOf(OAuthException::class, $e);
+        $this->assertNull($e->debugInfo, 'Debug info should be null by default');
+        $this->assertEquals($client->debugInfo, $e->debugInfo, 'Client and exception debugInfo differed');
+
+        $this->assertEquals('OAuthException: 64: Signatures do not match', $e->lastResponse);
+        $this->assertEquals($client->getLastResponse(), $e->lastResponse, 'Client and exception responses differed');
+    }
+
+    /**
+     * @depends test_fetch_get
+     */
+    public function test_fetch_get_expecting_error_with_debug_enabled()
+    {
+        $client = $this->getClient('consumer');
+        $client->setToken('token', 'not-the-actual-secret');
+        $client->enableDebug();
+
+        $e   = null;
+        $url = $this->getLocalServerUrl() . '/request.php';
+        try {
+            $client->fetch($url);
+        } catch (OAuthException $e) {
+        }
+
+        $this->assertInstanceOf(OAuthException::class, $e);
+        $this->assertTrue(is_array($e->debugInfo), 'debugInfo property should be an array');
+        $this->assertArrayHasKey('sbs', $e->debugInfo);
+        $this->assertArrayHasKey('headers_sent', $e->debugInfo);
+        $this->assertArrayHasKey('headers_recv', $e->debugInfo);
+        $this->assertArrayHasKey('body_recv', $e->debugInfo);
+        $this->assertEquals($client->debugInfo, $e->debugInfo, 'Client and exception debug info differed');
+
+        $this->assertEquals('OAuthException: 64: Signatures do not match', $e->lastResponse);
+        $this->assertEquals($client->getLastResponse(), $e->lastResponse, 'Client and exception responses differed');
+    }
+
+    /**
      * @param string $consumer
      *
      * @return OAuth

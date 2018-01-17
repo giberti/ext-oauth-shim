@@ -74,6 +74,7 @@ try {
             header('HTTP/1.1 400 Bad Request');
     }
 
+    // Tests depend on this message format, do not change without updating tests
     echo 'OAuthException: ' . $e->getCode() . ': ' . $e->getMessage();
 
     return;
