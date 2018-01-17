@@ -17,6 +17,9 @@ if (!defined('OAUTH_SIG_METHOD_HMACSHA1')) {
 if (!defined('OAUTH_SIG_METHOD_HMACSHA256')) {
     define('OAUTH_SIG_METHOD_HMACSHA256', 'HMAC-SHA256');
 }
+if (!defined('OAUTH_SIG_METHOD_PLAINTEXT')) {
+    define('OAUTH_SIG_METHOD_PLAINTEXT', 'PLAINTEXT');
+}
 
 if (!defined('OAUTH_AUTH_TYPE_AUTHORIZATION')) {
     define('OAUTH_AUTH_TYPE_AUTHORIZATION', 3);
@@ -54,6 +57,19 @@ if (!defined('OAUTH_REQENGINE_CURL')) {
     define('OAUTH_REQENGINE_CURL', 2);
 }
 
+if (!defined('OAUTH_SSLCHECK_NONE')) {
+    define('OAUTH_SSLCHECK_NONE', 0);
+}
+if (!defined('OAUTH_SSLCHECK_HOST')) {
+    define('OAUTH_SSLCHECK_HOST', 1);
+}
+if (!defined('OAUTH_SSLCHECK_PEER')) {
+    define('OAUTH_SSLCHECK_PEER', 2);
+}
+if (!defined('OAUTH_SSLCHECK_BOTH')) {
+    define('OAUTH_SSLCHECK_BOTH', 3);
+}
+
 if (!defined('OAUTH_OK')) {
     define('OAUTH_OK', 0);
 }
@@ -77,6 +93,9 @@ if (!defined('OAUTH_TOKEN_USED')) {
 }
 if (!defined('OAUTH_TOKEN_EXPIRED')) {
     define('OAUTH_TOKEN_EXPIRED', 256);
+}
+if (!defined('OAUTH_TOKEN_REVOKED')) {
+    define('OAUTH_TOKEN_REVOKED', 512);
 }
 if (!defined('OAUTH_TOKEN_REJECTED')) {
     define('OAUTH_TOKEN_REJECTED', 1024);
