@@ -105,6 +105,20 @@ class OAuthTest extends TestCase
         $this->assertEquals($plaintextSignature, $clientPlaintext->generateSignature($method, $uri, $params));
     }
 
+    public function test_rsaSignatureGeneration()
+    {
+        if (!extension_loaded('openssl')) {
+            $this->markTestSkipped('OpenSSL is required for RSA signing');
+        }
+
+        $rsaClient = $this->getConfiguredClient(OAUTH_SIG_METHOD_RSASHA1);
+        $rsaClient->setRSACertificate(file_get_contents(__DIR__ . '/rsa/test.pem'));
+
+        $expectedSignature = 'sfiNa7xGGSy91A3Na9UY1yh0cWBoAgTPkNnjilD2/B4EIyHDp7L0Hbzme1C0Ue4F/KMm4s+khevCH+NP+MDpJQucWPu3vkO9J8R0BlNIzJ3poE4c8AxOJXsp0a4iGPZ81IZL+23+M2TiSEz4sRDhF2j0Eer+sumYrXj7HDgtC/6qPWq9Jnbjwi52LXHyEnbEKVJQUpcqCbHT12iPV7wFhma8emOyCFNgDYoc3jwi9SZ5wvrVe0vjYrAsDrnSZCMueucVnpfAMwSJQiWiJ/gfMFcTaUQyKnTnBKPqQ51/HemrhDdm+/VFDpxMm7Q771/Ut+XyqXMTwvOh5e8kclyt0g==';
+        $this->assertEquals($expectedSignature,
+            $rsaClient->generateSignature(OAUTH_HTTP_METHOD_GET, 'https://example.com/request-token', []));
+    }
+
     /**
      * @param $signatureMethod
      *
