@@ -32,6 +32,7 @@ class OAuthTest extends TestCase
                 [],
                 '3nnfYjm846E1YI/24wxD3IuplI4=',
                 'cvdtbUtWnIm7vRuuvtHxhRUHn0C5DNSACxkA6tLcE2g=',
+                'secret&secret',
             ],
             'complex url get'            => [
                 'get',
@@ -39,6 +40,7 @@ class OAuthTest extends TestCase
                 ['p1' => 'p1', 'p2' => 'p2'],
                 '82RqAa3gYadI3uKswhdcg6NHloE=',
                 'C2ZSkeNhon7MCB/SF0ELf8/7EBfD8wBv0IO5Y665mSM=',
+                'secret&secret',
             ],
             'mixed parameter source get' => [
                 'get',
@@ -46,6 +48,7 @@ class OAuthTest extends TestCase
                 ['p1' => 'p1', 'p3' => 'p3'],
                 'RAolrPZCU4dosFXHu95UFgkMUxY=',
                 'kTWOPD/wPM+drs3mz04WcY2iPvLzDCbBBpp9oU1ZGcc=',
+                'secret&secret',
             ],
             'simple post'                => [
                 'post',
@@ -53,6 +56,7 @@ class OAuthTest extends TestCase
                 ['a' => 'a', 'b' => 'b'],
                 'EylqVUaucGp5P88F6HMr+VA5jBM=',
                 '3IWGftWgxOO4eq+XzagzhBw1R8nZ0JpRBfxf8B5ciZg=',
+                'secret&secret',
             ],
             'json body post'             => [
                 'post',
@@ -60,6 +64,7 @@ class OAuthTest extends TestCase
                 json_encode(['a' => 'a', 'b' => 'b']),
                 'uI+/hIyE4DAL2mtOMXy0Bzvysgk=',
                 'OmWZMQdEB+5SKWsySOCJV4SdYonyXuT7sfBTxLNa5k4=',
+                'secret&secret',
             ],
             'post with special chars'    => [
                 'post',
@@ -74,6 +79,7 @@ class OAuthTest extends TestCase
                 ],
                 'ZZQSqXLaZKcV4+wPzqF1Xtp0dQ8=',
                 's2Vicy69glsIElY9PIhqbLM30sn1VF5YY/UyYcHF+pU=',
+                'secret&secret',
             ],
         ];
     }
@@ -84,14 +90,19 @@ class OAuthTest extends TestCase
      * @param $method
      * @param $uri
      * @param $params
+     * @param $sha1Signature
+     * @param $sha256Signature
+     * @param $plaintextSignature
      */
-    public function test_signatureGeneration_sha1($method, $uri, $params, $sha1Signature, $sha256Signature)
+    public function test_signatureGeneration($method, $uri, $params, $sha1Signature, $sha256Signature, $plaintextSignature)
     {
-        $clientSha1   = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA1);
-        $clientSha256 = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA256);
+        $clientSha1      = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA1);
+        $clientSha256    = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA256);
+        $clientPlaintext = $this->getConfiguredClient(OAUTH_SIG_METHOD_PLAINTEXT);
 
         $this->assertEquals($sha1Signature, $clientSha1->generateSignature($method, $uri, $params));
         $this->assertEquals($sha256Signature, $clientSha256->generateSignature($method, $uri, $params));
+        $this->assertEquals($plaintextSignature, $clientPlaintext->generateSignature($method, $uri, $params));
     }
 
     /**
