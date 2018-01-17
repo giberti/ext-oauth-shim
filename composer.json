@@ -18,7 +18,8 @@
         "phpunit/phpunit": "^6.5"
     },
     "suggest": {
-        "ext-oauth": "You should use the pecl OAuth extension, install with `pecl install oauth`"
+        "ext-oauth": "You should use the pecl OAuth extension, install with `pecl install oauth`",
+        "ext-openssl": "Required to use the OAUTH_SIG_METHOD_RSASHA1 signing method"
     },
     "provides": {
         "ext-oauth": "*"
