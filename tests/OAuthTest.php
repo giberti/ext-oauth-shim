@@ -22,6 +22,53 @@ class OAuthTest extends TestCase
         static::$tokens = include $tokenFile;
     }
 
+    public function test_create_without_consumer_key()
+    {
+        $this->expectException(OAuthException::class);
+        new OAuth();
+    }
+
+    public function test_create_without_consumer_secret()
+    {
+        $this->expectException(OAuthException::class);
+        new OAuth('consumer');
+    }
+
+    public function test_enable_disable_debug_property()
+    {
+        $o = new OAuth('consumer', 'secret');
+        $this->assertFalse($o->debug, 'Debug should default to false');
+        $o->enableDebug();
+        $this->assertTrue($o->debug, 'Debug should be enabled after calling enableDebug()');
+        $o->disableDebug();
+        $this->assertFalse($o->debug, 'Debug should be disabled after calling disableDebug()');
+        $o->debug = true;
+        $this->assertTrue($o->debug, 'Debug should be enabled after setting property to true');
+        $o->debug = false;
+        $this->assertFalse($o->debug, 'Debug should be disabled after setting property to false');
+    }
+
+    public function test_enable_disable_ssl_property()
+    {
+        $o = new OAuth('consumer', 'secret');
+        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should not be disabled by default');
+        $o->disableSSLChecks();
+        $this->assertFalse((bool)$o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
+        $o->enableSSLChecks();
+        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be enabled after calling enableSSLChecks()');
+        $o->sslChecks = 0; // falsy value, but not `false`
+        $this->assertFalse((bool)$o->sslChecks, 'SSL checks should be disabled after setting property to false');
+        $o->sslChecks = true;
+        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be enabled after setting property to true');
+    }
+
+    public function test_generateSignature_fails_with_invalid_url()
+    {
+        $this->expectException(OAuthException::class);
+        $o = new OAuth('consumer', 'secret');
+        $o->generateSignature('GET', 'invalid-url', []);
+    }
+
 
     public function provide_signatureTestData()
     {
@@ -94,8 +141,14 @@ class OAuthTest extends TestCase
      * @param $sha256Signature
      * @param $plaintextSignature
      */
-    public function test_signatureGeneration($method, $uri, $params, $sha1Signature, $sha256Signature, $plaintextSignature)
-    {
+    public function test_signatureGeneration(
+        $method,
+        $uri,
+        $params,
+        $sha1Signature,
+        $sha256Signature,
+        $plaintextSignature
+    ) {
         $clientSha1      = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA1);
         $clientSha256    = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA256);
         $clientPlaintext = $this->getConfiguredClient(OAUTH_SIG_METHOD_PLAINTEXT);
