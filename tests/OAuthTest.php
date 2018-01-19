@@ -180,6 +180,70 @@ class OAuthTest extends TestCase
         $this->assertEquals(OAUTH_SSLCHECK_PEER, $o->sslChecks);
     }
 
+    public function test_setNonce()
+    {
+        $o = new OAuth('consumer', 'secret');
+        $this->assertTrue($o->setNonce('nonce'));
+
+        $e = null;
+        try {
+            $o->setNonce('');
+        } catch (Throwable $e) {
+        }
+
+        $this->assertInstanceOf(OAuthException::class, $e);
+        $this->assertEquals('Invalid nonce', $e->getMessage());
+        $this->assertEquals(503, $e->getCode());
+    }
+
+    public function test_setTimestamp()
+    {
+        $o = new OAuth('consumer', 'secret');
+        $this->assertTrue($o->setTimestamp(time()));
+
+        $e = null;
+        try {
+            $o->setTimestamp('');
+        } catch (Throwable $e) {
+        }
+        $this->assertInstanceOf(OAuthException::class, $e);
+        $this->assertEquals('Invalid timestamp', $e->getMessage());
+        $this->assertEquals(503, $e->getCode());
+    }
+
+    public function test_setToken()
+    {
+        $o = new OAuth('consumer', 'secret');
+        $this->assertTrue($o->setToken(null, null));
+    }
+
+    public function test_setRequestEngine()
+    {
+        $o = new OAuth('consumer', 'secret');
+        $o->setRequestEngine(OAUTH_REQENGINE_STREAMS);
+
+        $e = null;
+        try {
+            $o->setRequestEngine(9999);
+        } catch (Throwable $e) {
+        }
+        $this->assertInstanceOf(OAuthException::class, $e);
+        $this->assertEquals('Invalid request engine specified', $e->getMessage());
+        $this->assertEquals(503, $e->getCode());
+    }
+
+    public function test_setCAPath_and_getCAPath()
+    {
+        $o = new OAuth('consumer', 'secret');
+        $this->assertTrue($o->setCAPath('path', 'info'));
+        $v = $o->getCAPath();
+        $this->assertTrue(is_array($v));
+        $this->assertArrayHasKey('ca_info', $v);
+        $this->assertArrayHasKey('ca_path', $v);
+        $this->assertEquals('info', $v['ca_info']);
+        $this->assertEquals('path', $v['ca_path']);
+    }
+
     public function test_generateSignature_fails_with_invalid_url()
     {
         $this->expectException(OAuthException::class);
