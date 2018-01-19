@@ -37,6 +37,54 @@ class OAuth
     public $debugInfo;
 
     /**
+     * OAuth constants
+     *
+     * Make these protected once support for PHP 7.0 is dropped
+     */
+    const OAUTH_CALLBACK         = 'oauth_callback';
+    const OAUTH_CONSUMER_KEY     = 'oauth_consumer_key';
+    const OAUTH_CONSUMER_SECRET  = 'oauth_consumer_secret';
+    const OAUTH_NONCE            = 'oauth_nonce';
+    const OAUTH_SIGNATURE        = 'oauth_signature';
+    const OAUTH_SIGNATURE_METHOD = 'oauth_signature_method';
+    const OAUTH_TIMESTAMP        = 'oauth_timestamp';
+    const OAUTH_TOKEN            = 'oauth_token';
+    const OAUTH_TOKEN_SECRET     = 'oauth_token_secret';
+    const OAUTH_VERIFIER         = 'oauth_verifier';
+
+    const EXCEPTION_MESSAGE_CONSUMER_KEY_EMPTY        = 'The consumer key cannot be empty';
+    const EXCEPTION_MESSAGE_CONSUMER_KEY_SECRET_EMPTY = 'The consumer secret cannot be empty';
+    const EXCEPTION_MESSAGE_INVALID_AUTH_TYPE         = 'Invalid auth type';
+    const EXCEPTION_MESSAGE_INVALID_NONCE             = 'Invalid nonce';
+    const EXCEPTION_MESSAGE_INVALID_REQUEST_ENGINE    = 'Invalid request engine specified';
+    const EXCEPTION_MESSAGE_INVALID_TIMESTAMP         = 'Invalid timestamp';
+    const EXCEPTION_MESSAGE_INVALID_VERSION           = 'Invalid version';
+    const EXCEPTION_MESSAGE_CERT_PARSE_ERROR          = 'Could not parse RSA certificate';
+
+    const EXCEPTION_CODE_INTERNAL = 503;
+
+    const OAUTH_FETCH_MESSAGE = 'Invalid auth/bad request (got a %d, expected HTTP/1.1 20X or a redirect)';
+
+    // OAuth construction parts
+    private $consumerKey;
+    private $consumerSecret;
+    private $signatureMethod;
+    private $token;
+    private $tokenSecret;
+
+    // Internal function
+    private $authType;
+    private $requestEngine;
+    private $rsaCert;
+    private $caInfo;
+    private $caPath;
+
+    // Return values
+    private $lastResponse;
+    private $lastResponseHeaders;
+    private $lastResponseInfo;
+
+    /**
      * Creates a new OAuth object
      *
      * @see http://php.net/manual/en/oauth.construct.php
@@ -61,7 +109,23 @@ class OAuth
         $signature_method = OAUTH_SIG_METHOD_HMACSHA1,
         $auth_type = OAUTH_AUTH_TYPE_AUTHORIZATION
     ) {
-        throw new Exception('Not implemented');
+        if (empty($consumer_key)) {
+            throw new OAuthException(static::EXCEPTION_MESSAGE_CONSUMER_KEY_EMPTY, -1);
+        }
+        if (empty($consumer_secret)) {
+            throw new OAuthException(static::EXCEPTION_MESSAGE_CONSUMER_KEY_SECRET_EMPTY, -1);
+        }
+
+        $this->consumerKey     = $consumer_key;
+        $this->consumerSecret  = $consumer_secret;
+        $this->signatureMethod = $signature_method;
+        $this->setAuthType($auth_type);
+
+        if (extension_loaded('curl')) {
+            $this->requestEngine = OAUTH_REQENGINE_CURL;
+        } else {
+            $this->requestEngine = OAUTH_REQENGINE_STREAMS;
+        }
     }
 
     /**
@@ -74,7 +138,9 @@ class OAuth
      */
     public function disableDebug()
     {
-        throw new Exception('Not implemented');
+        $this->debug = false;
+
+        return true;
     }
 
     /**
@@ -87,7 +153,9 @@ class OAuth
      */
     public function disableRedirects()
     {
-        throw new Exception('Not implemented');
+        $this->redirects = false;
+
+        return true;
     }
 
     /**
@@ -101,7 +169,9 @@ class OAuth
      */
     public function disableSSLChecks()
     {
-        throw new Exception('Not implemented');
+        $this->sslChecks = OAUTH_SSLCHECK_NONE;
+
+        return true;
     }
 
     /**
@@ -115,7 +185,9 @@ class OAuth
      */
     public function enableDebug()
     {
-        throw new Exception('Not implemented');
+        $this->debug = true;
+
+        return true;
     }
 
     /**
@@ -127,7 +199,9 @@ class OAuth
      */
     public function enableRedirects()
     {
-        throw new Exception('Not implemented');
+        $this->redirects = true;
+
+        return true;
     }
 
     /**
@@ -141,7 +215,9 @@ class OAuth
      */
     public function enableSSLChecks()
     {
-        throw new Exception('Not implemented');
+        $this->sslChecks = OAUTH_SSLCHECK_BOTH;
+
+        return true;
     }
 
     /**
@@ -220,7 +296,10 @@ class OAuth
      */
     public function getCAPath()
     {
-        throw new Exception('Not implemented');
+        return [
+            'ca_info' => $this->caInfo,
+            'ca_path' => $this->caPath,
+        ];
     }
 
     /**
@@ -232,7 +311,7 @@ class OAuth
      */
     public function getLastResponse()
     {
-        throw new Exception('Not implemented');
+        return $this->lastResponse;
     }
 
     /**
@@ -245,7 +324,7 @@ class OAuth
      */
     public function getLastResponseHeaders()
     {
-        throw new Exception('Not implemented');
+        return $this->lastResponseHeaders;
     }
 
     /**
@@ -257,7 +336,7 @@ class OAuth
      */
     public function getLastResponseInfo()
     {
-        throw new Exception('Not implemented');
+        return $this->lastResponseInfo;
     }
 
     /**
@@ -303,10 +382,22 @@ class OAuth
      *
      * @return bool Returns TRUE if a parameter is correctly set, otherwise
      *          FALSE (e.g., if an invalid auth_type is passed in.)
+     *
+     * @throws OAuthException
      */
     public function setAuthType($auth_type)
     {
-        throw new Exception('Not implemented');
+        switch ($auth_type) {
+            case OAUTH_AUTH_TYPE_AUTHORIZATION:
+            case OAUTH_AUTH_TYPE_FORM:
+            case OAUTH_AUTH_TYPE_NONE:
+            case OAUTH_AUTH_TYPE_URI:
+                $this->authType = $auth_type;
+
+                return true;
+        }
+
+        throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_AUTH_TYPE, 503);
     }
 
     /**
@@ -315,11 +406,14 @@ class OAuth
      * @param string $ca_path
      * @param string $ca_info
      *
-     * @return true;
+     * @return true
      */
     public function setCAPath($ca_path, $ca_info)
     {
-        throw new Exception('Not implemented');
+        $this->caPath = $ca_path;
+        $this->caInfo = $ca_info;
+
+        return true;
     }
 
     /**
@@ -331,10 +425,17 @@ class OAuth
      *
      * @return bool Returns TRUE on success, or FALSE if the nonce is
      *          considered invalid.
+     * @throws OAuthException
      */
     public function setNonce($nonce)
     {
-        throw new Exception('Not implemented');
+        if (strlen($nonce) < 1) {
+            throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_NONCE, static::EXCEPTION_CODE_INTERNAL);
+        }
+
+        $this->nonce = $nonce;
+
+        return true;
     }
 
     /**
@@ -352,7 +453,20 @@ class OAuth
      */
     public function setRequestEngine($reqengine)
     {
-        throw new Exception('Not implemented');
+        $validEngines = [
+            OAUTH_REQENGINE_STREAMS => true,
+        ];
+        if (extension_loaded('curl')) {
+            $validEngines[OAUTH_REQENGINE_CURL] = true;
+        }
+
+        if (isset($validEngines[$reqengine])) {
+            $this->requestEngine = $reqengine;
+
+            return;
+        }
+
+        throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_REQUEST_ENGINE, static::EXCEPTION_CODE_INTERNAL);
     }
 
     /**
@@ -364,10 +478,20 @@ class OAuth
      *
      * @return bool Returns TRUE on success, or FALSE on failure (e.g., the RSA
      *          certificate cannot be parsed.)
+     * @throws OAuthException
      */
     public function setRSACertificate($cert)
     {
-        throw new Exception('Not implemented');
+        if (!function_exists('openssl_pkey_get_private')) {
+            return false;
+        }
+
+        $this->rsaCert = openssl_pkey_get_private($cert);
+        if (!$this->rsaCert) {
+            throw new OAuthException(static::EXCEPTION_MESSAGE_CERT_PARSE_ERROR, static::EXCEPTION_CODE_INTERNAL);
+        }
+
+        return true;
     }
 
     /**
@@ -381,7 +505,15 @@ class OAuth
      */
     public function setSSLChecks($sslcheck)
     {
-        throw new Exception('Not implemented');
+        switch ($sslcheck) {
+            case OAUTH_SSLCHECK_HOST:
+            case OAUTH_SSLCHECK_PEER:
+            case OAUTH_SSLCHECK_NONE:
+            case OAUTH_SSLCHECK_BOTH:
+                $this->sslChecks = $sslcheck & OAUTH_SSLCHECK_BOTH;
+        }
+
+        return true;
     }
 
     /**
@@ -393,10 +525,17 @@ class OAuth
      *
      * @return bool Returns TRUE, unless the timestamp is invalid, in which
      *          case FALSE is returned.
+     * @throws OAuthException
      */
     public function setTimestamp($timestamp)
     {
-        throw new Exception('Not implemented');
+        if (strlen($timestamp) < 1) {
+            throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_TIMESTAMP, static::EXCEPTION_CODE_INTERNAL);
+        }
+
+        $this->timestamp = $timestamp;
+
+        return true;
     }
 
 
@@ -412,7 +551,10 @@ class OAuth
      */
     public function setToken($token, $token_secret)
     {
-        throw new Exception('Not implemented');
+        $this->token       = $token;
+        $this->tokenSecret = $token_secret;
+
+        return true;
     }
 
     /**
@@ -423,9 +565,16 @@ class OAuth
      * @param string $version OAuth version, default value is always "1.0"
      *
      * @return bool Returns TRUE on success or FALSE on failure.
+     * @throws OAuthException
      */
     public function setVersion($version)
     {
-        throw new Exception('Not implemented');
+        if (strlen($version) < 1) {
+            throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_VERSION, 503);
+        }
+
+        $this->version = $version;
+
+        return true;
     }
 }
