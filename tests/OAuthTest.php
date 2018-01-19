@@ -28,10 +28,100 @@ class OAuthTest extends TestCase
         new OAuth();
     }
 
+    public function test_create_without_consumer_key_message()
+    {
+        $e = null;
+        try {
+            new OAuth();
+            // catch the most generic class
+        } catch (Throwable $e) {
+        }
+
+        $this->assertInstanceOf(OAuthException::class, $e);
+        $this->assertEquals('The consumer key cannot be empty', $e->getMessage());
+        $this->assertEquals(-1, $e->getCode());
+    }
+
     public function test_create_without_consumer_secret()
     {
         $this->expectException(OAuthException::class);
         new OAuth('consumer');
+    }
+
+    public function test_create_without_consumer_key_secret_message()
+    {
+        $e = null;
+        try {
+            new OAuth('consumer');
+            // catch the most generic class
+        } catch (Throwable $e) {
+        }
+
+        $this->assertInstanceOf(OAuthException::class, $e);
+        $this->assertEquals('The consumer secret cannot be empty', $e->getMessage());
+        $this->assertEquals(-1, $e->getCode());
+    }
+
+    public function test_set_version()
+    {
+        $o = new OAuth('client', 'secret');
+        $this->assertTrue($o->setVersion('1.0'), 'Setting the version should return true');
+
+        try {
+            $this->assertTrue($o->setVersion(''), 'Setting the version should return true');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(OAuthException::class, $e);
+            $this->assertEquals('Invalid version', $e->getMessage());
+            $this->assertEquals(503, $e->getCode());
+        }
+    }
+
+    public function test_create_with_signature_method()
+    {
+        $o = new OAuth('consumer', 'secret', OAUTH_SIG_METHOD_HMACSHA1);
+        $this->assertInstanceOf(OAuth::class, $o);
+
+        $o = new OAuth('consumer', 'secret', 'not-a-valid-signature-method');
+        $this->assertInstanceOf(OAuth::class, $o);
+    }
+
+    public function test_create_with_auth_type()
+    {
+        $o = new OAuth('consumer', 'secret', OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
+        $this->assertInstanceOf(OAuth::class, $o);
+    }
+
+    public function test_setAuthType()
+    {
+        $o = new OAuth('consumer', 'secret');
+        $this->assertInstanceOf(OAuth::class, $o);
+        $this->assertTrue($o->setAuthType(OAUTH_AUTH_TYPE_FORM));
+
+        try {
+            $o->setAuthType(9999);
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(OAuthException::class, $e);
+            $this->assertEquals('Invalid auth type', $e->getMessage());
+            $this->assertEquals(503, $e->getCode());
+        }
+    }
+
+    public function test_setRSACertificate()
+    {
+        if (!extension_loaded('openssl')) {
+            $this->markTestSkipped('OpenSSL is required for RSA signing');
+        }
+
+        $o = new OAuth('consumer', 'secret', OAUTH_SIG_METHOD_RSASHA1);
+        $this->assertTrue($o->setRSACertificate(file_get_contents(__DIR__ . '/rsa/test.pem')));
+
+        try {
+            $o->setRSACertificate('asdf');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(OAuthException::class, $e);
+            $this->assertEquals('Could not parse RSA certificate', $e->getMessage());
+            $this->assertEquals(503, $e->getCode());
+        }
     }
 
     public function test_enable_disable_debug_property()
@@ -48,18 +138,46 @@ class OAuthTest extends TestCase
         $this->assertFalse($o->debug, 'Debug should be disabled after setting property to false');
     }
 
-    public function test_enable_disable_ssl_property()
+    public function test_enable_disable_ssl_check_property()
     {
         $o = new OAuth('consumer', 'secret');
-        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should not be disabled by default');
+        $this->assertEquals(OAUTH_SSLCHECK_BOTH, $o->sslChecks, 'SSL checks should not be disabled by default');
         $o->disableSSLChecks();
-        $this->assertFalse((bool)$o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
+        $this->assertEquals(OAUTH_SSLCHECK_NONE, $o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
         $o->enableSSLChecks();
-        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be enabled after calling enableSSLChecks()');
-        $o->sslChecks = 0; // falsy value, but not `false`
-        $this->assertFalse((bool)$o->sslChecks, 'SSL checks should be disabled after setting property to false');
+        $this->assertEquals(OAUTH_SSLCHECK_HOST, $o->sslChecks, 'SSL checks should be enabled after calling enableSSLChecks()');
+        $o->disableSSLChecks();
+        $this->assertEquals(OAUTH_SSLCHECK_NONE, $o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
+        $o->sslChecks = false;
+        $this->assertEquals(OAUTH_SSLCHECK_PEER, $o->sslChecks, 'SSL checks should be disabled after setting property to false');
         $o->sslChecks = true;
-        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be enabled after setting property to true');
+        $this->assertEquals(OAUTH_SSLCHECK_PEER, $o->sslChecks, 'SSL checks should be disabled after setting property to false');
+    }
+
+    /**
+     * @depends test_enable_disable_ssl_check_property
+     */
+    public function test_setSSLChecks()
+    {
+        $o = new OAuth('consumer', 'secret');
+        $this->assertEquals(OAUTH_SSLCHECK_BOTH, $o->sslChecks, 'Checks should be enabled');
+
+        $o->disableSSLChecks();
+        $this->assertEquals(OAUTH_SSLCHECK_NONE, $o->sslChecks, 'Checks should be disabled');
+        $this->assertTrue($o->setSSLChecks(OAUTH_SSLCHECK_HOST), 'Setting should return true');
+        $this->assertEquals(OAUTH_SSLCHECK_HOST, $o->sslChecks);
+
+        $o->disableSSLChecks();
+        $this->assertEquals(OAUTH_SSLCHECK_NONE, $o->sslChecks, 'Checks should be disabled');
+        $this->assertTrue($o->setSSLChecks(OAUTH_SSLCHECK_PEER), 'Setting should return true');
+        $this->assertEquals(OAUTH_SSLCHECK_PEER, $o->sslChecks);
+
+        $o->disableSSLChecks();
+        $this->assertEquals(OAUTH_SSLCHECK_NONE, $o->sslChecks, 'Checks should be disabled');
+        $this->assertTrue($o->setSSLChecks(OAUTH_SSLCHECK_HOST), 'Setting should return true');
+        $this->assertEquals(OAUTH_SSLCHECK_HOST, $o->sslChecks);
+        $this->assertTrue($o->setSSLChecks(OAUTH_SSLCHECK_PEER), 'Setting should return true');
+        $this->assertEquals(OAUTH_SSLCHECK_PEER, $o->sslChecks);
     }
 
     public function test_generateSignature_fails_with_invalid_url()
