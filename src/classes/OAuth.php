@@ -386,6 +386,18 @@ class OAuth
 
             case OAUTH_HTTP_METHOD_GET:
                 $options[CURLOPT_HTTPGET] = true;
+                if (!empty($params)) {
+                    if (is_array($params)) {
+                        $additionalParams = http_build_query($params);
+                    } else {
+                        $additionalParams = $params;
+                    }
+                    if (stripos($options[CURLOPT_URL], '?')) {
+                        $options[CURLOPT_URL] .= '&' . $additionalParams;
+                    } else {
+                        $options[CURLOPT_URL] .= '?' . $additionalParams;
+                    }
+                }
                 break;
 
             case OAUTH_HTTP_METHOD_HEAD:
