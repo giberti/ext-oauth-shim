@@ -143,15 +143,15 @@ class OAuthTest extends TestCase
         $o = new OAuth('consumer', 'secret');
         $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be enabled by default');
         $o->disableSSLChecks();
-        $this->assertEquals((bool)$o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
+        $this->assertFalse((bool)$o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
         $o->enableSSLChecks();
         $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be enabled after calling enableSSLChecks()');
         $o->disableSSLChecks();
-        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
-        $o->sslChecks = false;
+        $this->assertFalse((bool)$o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
+        $o->sslChecks = 1;
         $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be disabled after setting property to false');
-        $o->sslChecks = true;
-        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be disabled after setting property to false');
+        $o->sslChecks = 0;
+        $this->assertFalse((bool)$o->sslChecks, 'SSL checks should be disabled after setting property to false');
     }
 
     /**
