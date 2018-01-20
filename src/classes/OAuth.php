@@ -67,7 +67,7 @@ class OAuth
 
     const EXCEPTION_CODE_INTERNAL = 503;
 
-    const OAUTH_FETCH_MESSAGE = 'Invalid auth/bad request (got a %d, expected HTTP/1.1 20X or a redirect)';
+    const EXCEPTION_MESSAGE_FETCH_TEMPLATE = 'Invalid auth/bad request (got a %d, expected HTTP/1.1 20X or a redirect)';
 
     // OAuth construction parts
     private $consumerKey;
@@ -82,6 +82,7 @@ class OAuth
 
     // Internal function
     private $authType;
+    private $redirects = true;
     private $requestEngine;
     private $rsaKey;
     private $caInfo;
@@ -247,9 +248,187 @@ class OAuth
         $http_method = OAUTH_HTTP_METHOD_GET,
         array $http_headers = []
     ) {
-        throw new Exception('Not implemented');
+        if (!$this->generateSignature($http_method, $protected_resource_url, $extra_parameters)) {
+            return false;
+        }
+
+        $finalUrl     = $protected_resource_url;
+        $finalParams  = $extra_parameters;
+        $finalMethod  = $http_method;
+        $finalHeaders = $http_headers;
+
+        // Gather OAuth parameters
+        $oauthParams = [];
+        if (isset($extra_parameters[self::OAUTH_CALLBACK])) {
+            $oauthParams[self::OAUTH_CALLBACK] = $extra_parameters[self::OAUTH_CALLBACK];
+        }
+        $oauthParams += [
+            self::OAUTH_CONSUMER_KEY     => $this->consumerKey,
+            self::OAUTH_SIGNATURE_METHOD => $this->signatureMethod,
+            self::OAUTH_NONCE            => $this->nonce,
+            self::OAUTH_TIMESTAMP        => $this->timestamp,
+            self::OAUTH_VERSION          => $this->version,
+        ];
+        if (isset($extra_parameters[self::OAUTH_VERIFIER])) {
+            $oauthParams[self::OAUTH_VERIFIER] = $extra_parameters[self::OAUTH_VERIFIER];
+        }
+        if ($this->token) {
+            $oauthParams[self::OAUTH_TOKEN] = $this->token;
+        }
+        $oauthParams[self::OAUTH_SIGNATURE] = $this->signature;
+
+        // Place OAuth parameters where they belong
+        switch ($this->authType) {
+            case OAUTH_AUTH_TYPE_AUTHORIZATION:
+                $finalHeaders['Authorization'] = $this->getRequestHeader($http_method, $protected_resource_url,
+                    $extra_parameters);
+                break;
+
+            case OAUTH_AUTH_TYPE_FORM:
+                if (is_array($extra_parameters)) {
+                    $finalParams = array_merge($extra_parameters, $oauthParams);
+                } elseif (empty($extra_parameters)) {
+                    $finalParams = $oauthParams;
+                } else {
+                    $finalParams = $extra_parameters . '&' . http_build_query($oauthParams);
+                }
+                break;
+
+            case OAUTH_AUTH_TYPE_URI:
+                if (false === stripos($protected_resource_url, '?')) {
+                    $finalUrl .= '?' . http_build_query($oauthParams);
+                } else {
+                    $finalUrl .= '&' . http_build_query($oauthParams);
+                }
+                break;
+
+            case OAUTH_AUTH_TYPE_NONE:
+                // Don't pass the authorization ¯\_(ツ)_/¯
+                break;
+        }
+
+        // Pass the request to the appropriate engine
+        $uaTemplate = 'Giberti/ext-oauth-shim (%s; PHP ' . phpversion() . ') ' . PHP_OS . ' (like PECL-OAuth/2.0.2)';
+        switch ($this->requestEngine) {
+            case OAUTH_REQENGINE_STREAMS:
+                $finalHeaders['User-Agent'] = sprintf($uaTemplate, 'stream');
+                $this->fetchStream($finalUrl, $finalParams, $finalMethod, $finalHeaders);
+                break;
+
+            case OAUTH_REQENGINE_CURL:
+                $finalHeaders['User-Agent'] = sprintf($uaTemplate, 'cURL');
+                $this->fetchCurl($finalUrl, $finalParams, $finalMethod, $finalHeaders);
+                break;
+
+        }
+
+        // Raise an exception for 4xx/5xx codes
+        $code = $this->lastResponseInfo['http_code'];
+        if ($code >= 400) {
+            $message   = sprintf(self::EXCEPTION_MESSAGE_FETCH_TEMPLATE, $code);
+            $exception = new OAuthException($message, $code);
+            if ($this->debug) {
+                $exception->lastResponse = $this->lastResponse;
+                $exception->debugInfo    = $this->debugInfo;
+            }
+
+            throw $exception;
+        }
+
+        // Redirect
+        if ($this->redirects && $code >= 300 && $code < 400) {
+            // Unset the request signature to ensure a new signature is calculated
+            $this->signature = false;
+            $this->fetch($protected_resource_url, $extra_parameters, $http_method, $http_headers);
+        }
+
+        return true;
     }
 
+    private function fetchCurl($url, $params, $method, $headers)
+    {
+        // Map the header key/value pairs to the format cURL expects
+        $curlHeaders = [];
+        foreach ($headers as $key => $value) {
+            $curlHeaders[] = "{$key}: {$value}";
+        }
+
+        // Set the request options
+        $options = [
+            CURLOPT_HEADER         => true,
+            CURLOPT_HTTPHEADER     => $curlHeaders,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_URL            => $url,
+            CURLOPT_FOLLOWLOCATION => false,
+        ];
+
+        if (!$this->sslChecks) {
+            $options[CURLOPT_SSL_VERIFYPEER] = $this->sslChecks & OAUTH_SSLCHECK_PEER;
+            $options[CURLOPT_SSL_VERIFYHOST] = $this->sslChecks & OAUTH_SSLCHECK_BOTH;
+        }
+        if ($this->caPath && $this->caInfo) {
+            $options[CURLOPT_CAPATH] = $this->caPath;
+            $options[CURLOPT_CAINFO] = $this->caInfo;
+        }
+
+        // Set the method specific options
+        switch ($method) {
+            case OAUTH_HTTP_METHOD_DELETE:
+                $options[CURLOPT_CUSTOMREQUEST] = 'DELETE';
+                if (is_array($params)) {
+                    $options[CURLOPT_POSTFIELDS] = http_build_query($params);
+                } else {
+                    $options[CURLOPT_POSTFIELDS] = $params;
+                }
+                break;
+
+            case OAUTH_HTTP_METHOD_GET:
+                $options[CURLOPT_HTTPGET] = true;
+                break;
+
+            case OAUTH_HTTP_METHOD_HEAD:
+                $options[CURLOPT_NOBODY] = true;
+                break;
+
+            case OAUTH_HTTP_METHOD_PUT:
+                $options[CURLOPT_POST]       = true;
+                $options[CURLOPT_POSTFIELDS] = $params;
+                break;
+
+            case OAUTH_HTTP_METHOD_POST:
+            default:
+                $options[CURLOPT_CUSTOMREQUEST] = $method;
+                if (is_array($params)) {
+                    $options[CURLOPT_POSTFIELDS] = http_build_query($params);
+                } else {
+                    $options[CURLOPT_POSTFIELDS] = $params;
+                }
+                break;
+        }
+
+        $curl = curl_init();
+        curl_setopt_array($curl, $options);
+        $response     = curl_exec($curl);
+        $responseInfo = curl_getinfo($curl);
+        curl_close($curl);
+
+        $this->lastResponseHeaders = trim(substr($response, 0, $responseInfo['header_size']));
+        $this->lastResponse        = substr($response, $responseInfo['header_size']);
+        $this->lastResponseInfo    = [
+            'url'           => $responseInfo['url'],
+            'content_type'  => $responseInfo['content_type'],
+            'http_code'     => $responseInfo['http_code'],
+            'size_download' => $responseInfo['size_download'],
+            'size_upload'   => $responseInfo['size_upload'],
+        ];
+
+        return true;
+    }
+
+    private function fetchStream($url, $params, $method, $headers)
+    {
+        throw new Exception('Not implemented');
+    }
 
     /**
      * Generate a signature based on the final HTTP method, URL and a string/array of parameters.
