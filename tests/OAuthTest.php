@@ -355,6 +355,22 @@ class OAuthTest extends TestCase
     }
 
     /**
+     * @depends test_signatureGeneration
+     */
+    public function test_getRequestHeader()
+    {
+        $data      = $this->provide_signatureTestData()['simple get'];
+        $method    = $data[0];
+        $url       = $data[1];
+        $params    = $data[2];
+        $signature = $data[3];
+        $client    = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA1);
+        $expected  = 'OAuth oauth_consumer_key="consumer",oauth_signature_method="HMAC-SHA1",oauth_nonce="nonce",oauth_timestamp="2",oauth_version="1.0",oauth_token="token",oauth_signature="' . oauth_urlencode($signature) . '"';
+        $this->assertEquals($expected, $client->getRequestHeader($method, $url, $params),
+            "Unexpected header value for {$method} {$url}");
+    }
+
+    /**
      * @param $signatureMethod
      *
      * @return OAuth
