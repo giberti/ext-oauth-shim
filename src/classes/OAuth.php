@@ -406,7 +406,36 @@ class OAuth
      */
     public function getRequestHeader($http_method, $url, $extra_parameters)
     {
-        throw new Exception('Not implemented');
+        if (!$this->signature
+            && !$this->generateSignature($http_method, $url, $extra_parameters)) {
+            return false;
+        }
+
+        $params = [];
+        if (isset($extra_parameters[self::OAUTH_CALLBACK])) {
+            $params[self::OAUTH_CALLBACK] = $extra_parameters[self::OAUTH_CALLBACK];
+        }
+        $params += [
+            self::OAUTH_CONSUMER_KEY => $this->consumerKey,
+            self::OAUTH_SIGNATURE_METHOD => $this->signatureMethod,
+            self::OAUTH_NONCE => $this->nonce,
+            self::OAUTH_TIMESTAMP => $this->timestamp,
+            self::OAUTH_VERSION => $this->version,
+        ];
+        if (isset($extra_parameters[self::OAUTH_VERIFIER])) {
+            $params[self::OAUTH_VERIFIER] = $extra_parameters[self::OAUTH_VERIFIER];
+        }
+        if ($this->token) {
+            $params[self::OAUTH_TOKEN] = $this->token;
+        }
+        $params[self::OAUTH_SIGNATURE] = $this->signature;
+
+        $header = 'OAuth ';
+        foreach ($params as $key => $value) {
+            $header .= $key . '="' . oauth_urlencode($value) . '",';
+        }
+
+        return substr($header, 0, -1);
     }
 
     /**
