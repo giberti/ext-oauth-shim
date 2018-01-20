@@ -230,6 +230,27 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
+    public function test_fetch_using_streams()
+    {
+        $client = $this->getClient('consumer');
+        $client->setToken('token', static::$tokens['access-tokens']['token']);
+        $client->setRequestEngine(OAUTH_REQENGINE_STREAMS);
+
+        $requestUrl = $this->getLocalServerUrl() . '/request.php?bar=baz';
+        $client->fetch($requestUrl, ['foo' => 'bar'], OAUTH_HTTP_METHOD_GET);
+
+        $raw  = $client->getLastResponse();
+        $data = json_decode($raw, true);
+        $get  = $data['get'];
+        $this->assertArrayHasKey('foo', $get);
+        $this->assertEquals('bar', $get['foo']);
+        $this->assertArrayHasKey('bar', $get);
+        $this->assertEquals('baz', $get['bar']);
+    }
+
+    /**
+     * @depends test_fetch_get
+     */
     public function test_fetch_post_with_params()
     {
         $client = $this->getClient('consumer');
