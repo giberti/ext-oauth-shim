@@ -337,8 +337,10 @@ class OAuth
 
         // Redirect
         if ($this->redirects && $code >= 300 && $code < 400) {
-            // Unset the request signature to ensure a new signature is calculated
-            $this->signature = false;
+            // Reset the request
+            $this->nonce     = null;
+            $this->signature = null;
+            $this->timestamp = null;
             $this->fetch($protected_resource_url, $extra_parameters, $http_method, $http_headers);
         }
 
