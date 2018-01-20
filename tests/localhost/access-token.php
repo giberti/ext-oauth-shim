@@ -61,32 +61,28 @@ $provider->setRequestTokenPath('/request-token.php');
 try {
     $provider->checkOAuthRequest();
 } catch (OAuthException $e) {
-    try {
-        $provider->checkOAuthRequest();
-    } catch (OAuthException $e) {
-        // Set an appropriate header
-        switch ($e->getCode()) {
-            case OAUTH_CONSUMER_KEY_REFUSED:
-            case OAUTH_CONSUMER_KEY_UNKNOWN:
-            case OAUTH_TOKEN_EXPIRED:
-            case OAUTH_TOKEN_REJECTED:
-            case OAUTH_TOKEN_USED:
-            case OAUTH_VERIFIER_INVALID:
-                header('HTTP/1.1 401 Unauthorized');
-                break;
+    // Set an appropriate header
+    switch ($e->getCode()) {
+        case OAUTH_CONSUMER_KEY_REFUSED:
+        case OAUTH_CONSUMER_KEY_UNKNOWN:
+        case OAUTH_TOKEN_EXPIRED:
+        case OAUTH_TOKEN_REJECTED:
+        case OAUTH_TOKEN_USED:
+        case OAUTH_VERIFIER_INVALID:
+            header('HTTP/1.1 401 Unauthorized');
+            break;
 
-            case OAUTH_BAD_NONCE:
-            case OAUTH_BAD_TIMESTAMP:
-            case OAUTH_INVALID_SIGNATURE:
-            case OAUTH_SIGNATURE_METHOD_REJECTED:
-            default:
-                header('HTTP/1.1 400 Bad Request');
-        }
-
-        echo 'OAuthException: ' . $e->getCode() . ': ' . $e->getMessage();
-
-        return;
+        case OAUTH_BAD_NONCE:
+        case OAUTH_BAD_TIMESTAMP:
+        case OAUTH_INVALID_SIGNATURE:
+        case OAUTH_SIGNATURE_METHOD_REJECTED:
+        default:
+            header('HTTP/1.1 400 Bad Request');
     }
+
+    echo 'OAuthException: ' . $e->getCode() . ': ' . $e->getMessage();
+
+    return;
 }
 
 header('HTTP/1.1 200 OK');
