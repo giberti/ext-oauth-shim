@@ -267,6 +267,31 @@ class ClientTest extends LocalServerTestCase
     }
 
     /**
+     * In this case, the OAuth parameters will be appended to the request body which will not be parsed correctly
+     */
+    public function test_fetch_post_odd_request() {
+        $this->expectException(OAuthException::class);
+        $consumer = 'consumer';
+        $token = 'token';
+        $client = new OAuth($consumer, static::$tokens['consumer-tokens'][$consumer], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_FORM);
+        $client->setToken($token, static::$tokens['access-tokens'][$token]);
+        $client->fetch($this->getLocalServerUrl() . '/request.php', '{}', OAUTH_HTTP_METHOD_POST, ['Content-type' => 'application/json']);
+    }
+
+    /**
+     * In this case, the OAuth parameters will be also be appended to the request body, but the properly encoded parameters will parse correctly
+     */
+    public function test_fetch_post_odd_request_two() {
+        $this->expectException(OAuthException::class);
+        $consumer = 'consumer';
+        $token = 'token';
+        $client = new OAuth($consumer, static::$tokens['consumer-tokens'][$consumer], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_FORM);
+        $client->setToken($token, static::$tokens['access-tokens'][$token]);
+        $client->fetch($this->getLocalServerUrl() . '/request.php', 'foo=bar&bar=baz', OAUTH_HTTP_METHOD_POST);
+    }
+
+
+    /**
      * @depends test_fetch_get
      */
     public function test_fetch_get_expecting_error()
