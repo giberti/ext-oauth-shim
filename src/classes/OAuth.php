@@ -118,10 +118,10 @@ class OAuth
         $auth_type = OAUTH_AUTH_TYPE_AUTHORIZATION
     ) {
         if (empty($consumer_key)) {
-            throw new OAuthException(static::EXCEPTION_MESSAGE_CONSUMER_KEY_EMPTY, -1);
+            throw new OAuthException(self::EXCEPTION_MESSAGE_CONSUMER_KEY_EMPTY, -1);
         }
         if (empty($consumer_secret)) {
-            throw new OAuthException(static::EXCEPTION_MESSAGE_CONSUMER_KEY_SECRET_EMPTY, -1);
+            throw new OAuthException(self::EXCEPTION_MESSAGE_CONSUMER_KEY_SECRET_EMPTY, -1);
         }
 
         $this->consumerKey     = $consumer_key;
@@ -524,7 +524,7 @@ class OAuth
                 return true;
         }
 
-        throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_AUTH_TYPE, 503);
+        throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_AUTH_TYPE, self::EXCEPTION_CODE_INTERNAL);
     }
 
     /**
@@ -557,7 +557,7 @@ class OAuth
     public function setNonce($nonce)
     {
         if (strlen($nonce) < 1) {
-            throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_NONCE, static::EXCEPTION_CODE_INTERNAL);
+            throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_NONCE, self::EXCEPTION_CODE_INTERNAL);
         }
 
         $this->nonce = $nonce;
@@ -593,7 +593,7 @@ class OAuth
             return;
         }
 
-        throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_REQUEST_ENGINE, static::EXCEPTION_CODE_INTERNAL);
+        throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_REQUEST_ENGINE, self::EXCEPTION_CODE_INTERNAL);
     }
 
     /**
@@ -615,7 +615,7 @@ class OAuth
 
         $this->rsaKey = openssl_pkey_get_private($cert);
         if (!$this->rsaKey) {
-            throw new OAuthException(static::EXCEPTION_MESSAGE_CERT_PARSE_ERROR, static::EXCEPTION_CODE_INTERNAL);
+            throw new OAuthException(self::EXCEPTION_MESSAGE_CERT_PARSE_ERROR, self::EXCEPTION_CODE_INTERNAL);
         }
 
         return true;
@@ -657,7 +657,7 @@ class OAuth
     public function setTimestamp($timestamp)
     {
         if (strlen($timestamp) < 1) {
-            throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_TIMESTAMP, static::EXCEPTION_CODE_INTERNAL);
+            throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_TIMESTAMP, self::EXCEPTION_CODE_INTERNAL);
         }
 
         $this->timestamp = $timestamp;
@@ -697,7 +697,7 @@ class OAuth
     public function setVersion($version)
     {
         if (strlen($version) < 1) {
-            throw new OAuthException(static::EXCEPTION_MESSAGE_INVALID_VERSION, 503);
+            throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_VERSION, self::EXCEPTION_CODE_INTERNAL);
         }
 
         $this->version = $version;
