@@ -265,11 +265,11 @@ class OAuth
         $this->signature = null;
 
         $params = [
-            self::OAUTH_CONSUMER_KEY => $this->consumerKey,
+            self::OAUTH_CONSUMER_KEY     => $this->consumerKey,
             self::OAUTH_SIGNATURE_METHOD => $this->signatureMethod,
-            self::OAUTH_NONCE => $this->nonce ?: uniqid(),
-            self::OAUTH_TIMESTAMP => $this->timestamp ?: time(),
-            self::OAUTH_VERSION => $this->version ?: '1.0',
+            self::OAUTH_NONCE            => $this->nonce ?: uniqid(),
+            self::OAUTH_TIMESTAMP        => $this->timestamp ?: time(),
+            self::OAUTH_VERSION          => $this->version ?: '1.0',
         ];
 
         if ($this->token) {
@@ -280,14 +280,12 @@ class OAuth
             $params += $extra_parameters;
         }
 
-        $sbs = oauth_get_sbs($http_method, $url, $params);
+        $sbs    = oauth_get_sbs($http_method, $url, $params);
         $secret = oauth_urlencode($this->consumerSecret) . '&' . oauth_urlencode($this->tokenSecret);
 
         switch ($this->signatureMethod) {
             case OAUTH_SIG_METHOD_RSASHA1:
-                if (!extension_loaded('openssl')
-                    || !function_exists('openssl_sign')
-                    || !$this->rsaKey) {
+                if (!extension_loaded('openssl') || !function_exists('openssl_sign') || !$this->rsaKey) {
                     return false;
                 }
 
@@ -406,8 +404,7 @@ class OAuth
      */
     public function getRequestHeader($http_method, $url, $extra_parameters)
     {
-        if (!$this->signature
-            && !$this->generateSignature($http_method, $url, $extra_parameters)) {
+        if (!$this->signature && !$this->generateSignature($http_method, $url, $extra_parameters)) {
             return false;
         }
 
@@ -416,11 +413,11 @@ class OAuth
             $params[self::OAUTH_CALLBACK] = $extra_parameters[self::OAUTH_CALLBACK];
         }
         $params += [
-            self::OAUTH_CONSUMER_KEY => $this->consumerKey,
+            self::OAUTH_CONSUMER_KEY     => $this->consumerKey,
             self::OAUTH_SIGNATURE_METHOD => $this->signatureMethod,
-            self::OAUTH_NONCE => $this->nonce,
-            self::OAUTH_TIMESTAMP => $this->timestamp,
-            self::OAUTH_VERSION => $this->version,
+            self::OAUTH_NONCE            => $this->nonce,
+            self::OAUTH_TIMESTAMP        => $this->timestamp,
+            self::OAUTH_VERSION          => $this->version,
         ];
         if (isset($extra_parameters[self::OAUTH_VERIFIER])) {
             $params[self::OAUTH_VERIFIER] = $extra_parameters[self::OAUTH_VERIFIER];
