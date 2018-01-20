@@ -108,6 +108,10 @@ class ClientTest extends LocalServerTestCase
         $client->getAccessToken($accessTokenUrl, null, static::$tokens['request-token-verifier']);
     }
 
+    /**
+     * Performs a simple GET request, may fail if OAuthProvider has issues and doesn't provide the correct responses
+     * from the server
+     */
     public function test_fetch_get()
     {
         $client = $this->getClient('consumer');
@@ -119,8 +123,9 @@ class ClientTest extends LocalServerTestCase
         // Check info for expected keys
         $responseInfo = $client->getLastResponseInfo();
         $this->normalizeResponseInfo($responseInfo);
-        $this->assertTrue(is_array($responseInfo));
+        $this->assertTrue(is_array($responseInfo), 'ResponseInfo should be an array');
         $this->assertArrayHasKey('url', $responseInfo);
+        $this->assertArrayHasKey('content_type', $responseInfo);
         $this->assertArrayHasKey('http_code', $responseInfo);
         $this->assertArrayHasKey('size_download', $responseInfo);
         $this->assertArrayHasKey('size_upload', $responseInfo);
@@ -136,7 +141,8 @@ class ClientTest extends LocalServerTestCase
         // Check response for expected keys
         $raw  = $client->getLastResponse();
         $data = json_decode($raw, true);
-        $this->assertTrue(is_array($data));
+        $this->assertTrue(is_array($data),
+            'Response body was not valid JSON. Response was ' . number_format(strlen($raw)) . ' bytes of "' . $responseInfo['content_type'] . '"');
         $this->assertArrayHasKey('get', $data);
         $this->assertArrayHasKey('post', $data);
         $this->assertArrayHasKey('input', $data);
@@ -269,23 +275,29 @@ class ClientTest extends LocalServerTestCase
     /**
      * In this case, the OAuth parameters will be appended to the request body which will not be parsed correctly
      */
-    public function test_fetch_post_odd_request() {
+    public function test_fetch_post_odd_request()
+    {
         $this->expectException(OAuthException::class);
         $consumer = 'consumer';
-        $token = 'token';
-        $client = new OAuth($consumer, static::$tokens['consumer-tokens'][$consumer], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_FORM);
+        $token    = 'token';
+        $client   = new OAuth($consumer, static::$tokens['consumer-tokens'][$consumer], OAUTH_SIG_METHOD_HMACSHA1,
+            OAUTH_AUTH_TYPE_FORM);
         $client->setToken($token, static::$tokens['access-tokens'][$token]);
-        $client->fetch($this->getLocalServerUrl() . '/request.php', '{}', OAUTH_HTTP_METHOD_POST, ['Content-type' => 'application/json']);
+        $client->fetch($this->getLocalServerUrl() . '/request.php', '{}', OAUTH_HTTP_METHOD_POST,
+            ['Content-type' => 'application/json']);
     }
 
     /**
-     * In this case, the OAuth parameters will be also be appended to the request body, but the properly encoded parameters will parse correctly
+     * In this case, the OAuth parameters will be also be appended to the request body, but the properly encoded
+     * parameters will parse correctly
      */
-    public function test_fetch_post_odd_request_two() {
+    public function test_fetch_post_odd_request_two()
+    {
         $this->expectException(OAuthException::class);
         $consumer = 'consumer';
-        $token = 'token';
-        $client = new OAuth($consumer, static::$tokens['consumer-tokens'][$consumer], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_FORM);
+        $token    = 'token';
+        $client   = new OAuth($consumer, static::$tokens['consumer-tokens'][$consumer], OAUTH_SIG_METHOD_HMACSHA1,
+            OAUTH_AUTH_TYPE_FORM);
         $client->setToken($token, static::$tokens['access-tokens'][$token]);
         $client->fetch($this->getLocalServerUrl() . '/request.php', 'foo=bar&bar=baz', OAUTH_HTTP_METHOD_POST);
     }
