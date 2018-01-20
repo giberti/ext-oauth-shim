@@ -332,9 +332,14 @@ class OAuth
      *
      * @return array|false Returns an array containing the parsed OAuth
      *          response on success or FALSE on failure.
+     * @throws OAuthException
      */
-    public function getAccessToken($access_token_url, $auth_session_handle, $verifier_token, $http_method)
-    {
+    public function getAccessToken(
+        $access_token_url,
+        $auth_session_handle,
+        $verifier_token,
+        $http_method = OAUTH_HTTP_METHOD_POST
+    ) {
         throw new Exception('Not implemented');
     }
 
@@ -448,8 +453,9 @@ class OAuth
      * @param string $http_method       HTTP method to use, e.g. GET or POST.
      *
      * @return string
+     * @throws OAuthException
      */
-    public function getRequestToken($request_token_url, $callback_url, $http_method)
+    public function getRequestToken($request_token_url, $callback_url, $http_method = OAUTH_HTTP_METHOD_POST)
     {
         throw new Exception('Not implemented');
     }
