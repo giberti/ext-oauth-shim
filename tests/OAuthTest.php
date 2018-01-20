@@ -141,17 +141,17 @@ class OAuthTest extends TestCase
     public function test_enable_disable_ssl_check_property()
     {
         $o = new OAuth('consumer', 'secret');
-        $this->assertEquals(OAUTH_SSLCHECK_BOTH, $o->sslChecks, 'SSL checks should not be disabled by default');
+        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be enabled by default');
         $o->disableSSLChecks();
-        $this->assertEquals(OAUTH_SSLCHECK_NONE, $o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
+        $this->assertEquals((bool)$o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
         $o->enableSSLChecks();
-        $this->assertEquals(OAUTH_SSLCHECK_HOST, $o->sslChecks, 'SSL checks should be enabled after calling enableSSLChecks()');
+        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be enabled after calling enableSSLChecks()');
         $o->disableSSLChecks();
-        $this->assertEquals(OAUTH_SSLCHECK_NONE, $o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
+        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be disabled after calling disableSSLChecks()');
         $o->sslChecks = false;
-        $this->assertEquals(OAUTH_SSLCHECK_PEER, $o->sslChecks, 'SSL checks should be disabled after setting property to false');
+        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be disabled after setting property to false');
         $o->sslChecks = true;
-        $this->assertEquals(OAUTH_SSLCHECK_PEER, $o->sslChecks, 'SSL checks should be disabled after setting property to false');
+        $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be disabled after setting property to false');
     }
 
     /**
