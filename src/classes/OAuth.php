@@ -58,6 +58,7 @@ class OAuth
     const EXCEPTION_MESSAGE_INVALID_AUTH_TYPE         = 'Invalid auth type';
     const EXCEPTION_MESSAGE_INVALID_NONCE             = 'Invalid nonce';
     const EXCEPTION_MESSAGE_INVALID_REQUEST_ENGINE    = 'Invalid request engine specified';
+    const EXCEPTION_MESSAGE_INVALID_REQUEST_TOKEN_URL = 'Invalid request token url length';
     const EXCEPTION_MESSAGE_INVALID_TIMESTAMP         = 'Invalid timestamp';
     const EXCEPTION_MESSAGE_INVALID_VERSION           = 'Invalid version';
     const EXCEPTION_MESSAGE_CERT_PARSE_ERROR          = 'Could not parse RSA certificate';
@@ -455,9 +456,26 @@ class OAuth
      * @return string
      * @throws OAuthException
      */
-    public function getRequestToken($request_token_url, $callback_url, $http_method = OAUTH_HTTP_METHOD_POST)
+    public function getRequestToken($request_token_url, $callback_url = null, $http_method = OAUTH_HTTP_METHOD_POST)
     {
-        throw new Exception('Not implemented');
+        if (empty($request_token_url)) {
+            throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_REQUEST_TOKEN_URL, self::EXCEPTION_CODE_INTERNAL);
+        }
+
+        $params = [];
+        if (isset($callback_url)) {
+            if (!empty($callback_url)) {
+                $params[self::OAUTH_CALLBACK] = $callback_url;
+            } else {
+                $params[self::OAUTH_CALLBACK] = 'oob';
+            }
+        }
+
+        $this->fetch($request_token_url, $params, $http_method);
+        $response = $this->getLastResponse();
+        parse_str($response, $token);
+
+        return $token;
     }
 
     /**
