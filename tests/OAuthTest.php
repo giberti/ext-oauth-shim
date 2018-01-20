@@ -365,9 +365,26 @@ class OAuthTest extends TestCase
         $params    = $data[2];
         $signature = $data[3];
         $client    = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA1);
-        $expected  = 'OAuth oauth_consumer_key="consumer",oauth_signature_method="HMAC-SHA1",oauth_nonce="nonce",oauth_timestamp="2",oauth_version="1.0",oauth_token="token",oauth_signature="' . oauth_urlencode($signature) . '"';
-        $this->assertEquals($expected, $client->getRequestHeader($method, $url, $params),
-            "Unexpected header value for {$method} {$url}");
+
+        $keyValuePairs = [
+            'oauth_callback="http://example.com/"'                  => false,
+            'oauth_consumer_key="consumer"'                         => true,
+            'oauth_signature_method="HMAC-SHA1"'                    => true,
+            'oauth_nonce="nonce"'                                   => true,
+            'oauth_timestamp="2"'                                   => true,
+            'oauth_version="1.0"'                                   => true,
+            'oauth_token="token"'                                   => true,
+            'oauth_signature="' . oauth_urlencode($signature) . '"' => true,
+        ];
+
+        $generated = $client->getRequestHeader($method, $url, $params);
+        foreach ($keyValuePairs as $pair => $expected) {
+            if ($expected) {
+                $this->assertGreaterThan(0, strpos($generated, $pair), "Did not find {$pair} in the header");
+            } else {
+                $this->assertFalse(strpos($generated, $pair), "Found unexpected {$pair} in the header");
+            }
+        }
     }
 
     /**
