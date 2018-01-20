@@ -39,7 +39,7 @@ class OAuth
     /**
      * OAuth constants
      *
-     * Make these protected once support for PHP 7.0 is dropped
+     * Make these protected|private once support for PHP 7.0 is dropped
      */
     const OAUTH_CALLBACK         = 'oauth_callback';
     const OAUTH_CONSUMER_KEY     = 'oauth_consumer_key';
@@ -51,6 +51,7 @@ class OAuth
     const OAUTH_TOKEN            = 'oauth_token';
     const OAUTH_TOKEN_SECRET     = 'oauth_token_secret';
     const OAUTH_VERIFIER         = 'oauth_verifier';
+    const OAUTH_VERSION          = 'oauth_version';
 
     const EXCEPTION_MESSAGE_CONSUMER_KEY_EMPTY        = 'The consumer key cannot be empty';
     const EXCEPTION_MESSAGE_CONSUMER_KEY_SECRET_EMPTY = 'The consumer secret cannot be empty';
@@ -68,14 +69,18 @@ class OAuth
     // OAuth construction parts
     private $consumerKey;
     private $consumerSecret;
+    private $nonce;
+    private $signature;
     private $signatureMethod;
+    private $timestamp;
     private $token;
     private $tokenSecret;
+    private $version;
 
     // Internal function
     private $authType;
     private $requestEngine;
-    private $rsaCert;
+    private $rsaKey;
     private $caInfo;
     private $caPath;
 
@@ -257,7 +262,58 @@ class OAuth
      */
     public function generateSignature($http_method, $url, $extra_parameters)
     {
-        throw new Exception('Not implemented');
+        $this->signature = null;
+
+        $params = [
+            self::OAUTH_CONSUMER_KEY => $this->consumerKey,
+            self::OAUTH_SIGNATURE_METHOD => $this->signatureMethod,
+            self::OAUTH_NONCE => $this->nonce ?: uniqid(),
+            self::OAUTH_TIMESTAMP => $this->timestamp ?: time(),
+            self::OAUTH_VERSION => $this->version ?: '1.0',
+        ];
+
+        if ($this->token) {
+            $params[self::OAUTH_TOKEN] = $this->token;
+        }
+
+        if (is_array($extra_parameters)) {
+            $params += $extra_parameters;
+        }
+
+        $sbs = oauth_get_sbs($http_method, $url, $params);
+        $secret = oauth_urlencode($this->consumerSecret) . '&' . oauth_urlencode($this->tokenSecret);
+
+        switch ($this->signatureMethod) {
+            case OAUTH_SIG_METHOD_RSASHA1:
+                if (!extension_loaded('openssl')
+                    || !function_exists('openssl_sign')
+                    || !$this->rsaKey) {
+                    return false;
+                }
+
+                if (openssl_sign($sbs, $signature, $this->rsaKey, OPENSSL_ALGO_SHA1)) {
+                    $this->signature = base64_encode($signature);
+                }
+
+                break;
+
+            case OAUTH_SIG_METHOD_HMACSHA1:
+                $this->signature = base64_encode(hash_hmac('sha1', $sbs, $secret, true));
+                break;
+
+            case OAUTH_SIG_METHOD_HMACSHA256:
+                $this->signature = base64_encode(hash_hmac('sha256', $sbs, $secret, true));
+                break;
+
+            case OAUTH_SIG_METHOD_PLAINTEXT:
+                $this->signature = $secret;
+                break;
+
+            default:
+                return false;
+        }
+
+        return $this->signature;
     }
 
     /**
@@ -482,12 +538,12 @@ class OAuth
      */
     public function setRSACertificate($cert)
     {
-        if (!function_exists('openssl_pkey_get_private')) {
+        if (!extension_loaded('openssl') || !function_exists('openssl_pkey_get_private')) {
             return false;
         }
 
-        $this->rsaCert = openssl_pkey_get_private($cert);
-        if (!$this->rsaCert) {
+        $this->rsaKey = openssl_pkey_get_private($cert);
+        if (!$this->rsaKey) {
             throw new OAuthException(static::EXCEPTION_MESSAGE_CERT_PARSE_ERROR, static::EXCEPTION_CODE_INTERNAL);
         }
 
