@@ -45,6 +45,7 @@ class OAuth
     const OAUTH_CONSUMER_KEY     = 'oauth_consumer_key';
     const OAUTH_CONSUMER_SECRET  = 'oauth_consumer_secret';
     const OAUTH_NONCE            = 'oauth_nonce';
+    const OAUTH_SESSION_HANDLE   = 'oauth_session_handle';
     const OAUTH_SIGNATURE        = 'oauth_signature';
     const OAUTH_SIGNATURE_METHOD = 'oauth_signature_method';
     const OAUTH_TIMESTAMP        = 'oauth_timestamp';
@@ -55,6 +56,7 @@ class OAuth
 
     const EXCEPTION_MESSAGE_CONSUMER_KEY_EMPTY        = 'The consumer key cannot be empty';
     const EXCEPTION_MESSAGE_CONSUMER_KEY_SECRET_EMPTY = 'The consumer secret cannot be empty';
+    const EXCEPTION_MESSAGE_INVALID_ACCESS_TOKEN_URL  = 'Invalid access token url length';
     const EXCEPTION_MESSAGE_INVALID_AUTH_TYPE         = 'Invalid auth type';
     const EXCEPTION_MESSAGE_INVALID_NONCE             = 'Invalid nonce';
     const EXCEPTION_MESSAGE_INVALID_REQUEST_ENGINE    = 'Invalid request engine specified';
@@ -337,11 +339,30 @@ class OAuth
      */
     public function getAccessToken(
         $access_token_url,
-        $auth_session_handle,
-        $verifier_token,
+        $auth_session_handle = null,
+        $verifier_token = null,
         $http_method = OAUTH_HTTP_METHOD_POST
     ) {
-        throw new Exception('Not implemented');
+        if (empty($access_token_url)) {
+            throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_ACCESS_TOKEN_URL, self::EXCEPTION_CODE_INTERNAL);
+        }
+
+        $params = [];
+        if ($verifier_token) {
+            $params[self::OAUTH_VERIFIER] = $verifier_token;
+        } elseif (isset($_REQUEST[self::OAUTH_VERIFIER])) {
+            $params[self::OAUTH_VERIFIER] = $_REQUEST[self::OAUTH_VERIFIER];
+        }
+
+        if (!empty($auth_session_handle)) {
+            $params[self::OAUTH_SESSION_HANDLE] = $auth_session_handle;
+        }
+
+        $this->fetch($access_token_url, $params, $http_method);
+        $response = $this->getLastResponse();
+        parse_str($response, $token);
+
+        return $token;
     }
 
     /**
