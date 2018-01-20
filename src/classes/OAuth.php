@@ -446,12 +446,17 @@ class OAuth
     {
         $this->signature = null;
 
+        // Set the nonce, timestamp, and version if not yet set
+        $this->nonce     = $this->nonce ?: uniqid();
+        $this->timestamp = $this->timestamp ?: time();
+        $this->version   = $this->version ?: '1.0';
+
         $params = [
             self::OAUTH_CONSUMER_KEY     => $this->consumerKey,
             self::OAUTH_SIGNATURE_METHOD => $this->signatureMethod,
-            self::OAUTH_NONCE            => $this->nonce ?: uniqid(),
-            self::OAUTH_TIMESTAMP        => $this->timestamp ?: time(),
-            self::OAUTH_VERSION          => $this->version ?: '1.0',
+            self::OAUTH_NONCE            => $this->nonce,
+            self::OAUTH_TIMESTAMP        => $this->timestamp,
+            self::OAUTH_VERSION          => $this->version,
         ];
 
         if ($this->token) {
