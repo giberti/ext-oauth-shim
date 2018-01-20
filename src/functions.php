@@ -58,6 +58,8 @@ if (!function_exists('oauth_get_sbs')) {
 
         // Sort and generate the parameter string
         $request_parameters += $get;
+        unset($request_parameters['oauth_signature']);
+
         ksort($request_parameters);
         $parameters = "";
         foreach ($request_parameters as $key => $value) {

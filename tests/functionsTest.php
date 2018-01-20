@@ -86,6 +86,16 @@ class FunctionsTest extends TestCase
                 ],
                 'method&http%3A%2F%2Fexample.com%2F&k1%3Dv1%26k2%3Dk2',
             ],
+            'sensitive parameters'                     => [
+                'method',
+                'http://example.com/?k1=v1',
+                [
+                    'oauth_consumer_secret' => 'secret',
+                    'oauth_signature'       => 'asdf',
+                    'oauth_token_secret'    => 'secret',
+                ],
+                'method&http%3A%2F%2Fexample.com%2F&k1%3Dv1%26oauth_consumer_secret%3Dsecret%26oauth_token_secret%3Dsecret',
+            ],
         ];
     }
 
