@@ -359,6 +359,10 @@ class ClientTest extends LocalServerTestCase
      */
     private function normalizeResponseInfo(&$responseInfo)
     {
+        if (!is_array($responseInfo)) {
+            return;
+        }
+
         foreach ($responseInfo as $key => $value) {
             unset($responseInfo[$key]);
             $responseInfo[trim($key)] = trim($value);
