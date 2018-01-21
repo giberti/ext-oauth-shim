@@ -86,6 +86,15 @@ class FunctionsTest extends TestCase
                 ],
                 'method&http%3A%2F%2Fexample.com%2F&k1%3Dv1%26k2%3Dk2',
             ],
+            'parameter precedence'                     => [
+                'method',
+                'http://example.com/?k1=qs1&k2=qs2',
+                [
+                    'k1' => 'ep1',
+                    'k2' => 'ep2',
+                ],
+                'method&http%3A%2F%2Fexample.com%2F&k1%3Dqs1%26k2%3Dqs2',
+            ],
             'sensitive parameters'                     => [
                 'method',
                 'http://example.com/?k1=v1',
