@@ -487,6 +487,7 @@ class OAuth
         switch ($this->signatureMethod) {
             case OAUTH_SIG_METHOD_RSASHA1:
                 if (!extension_loaded('openssl') || !function_exists('openssl_sign') || !$this->rsaKey) {
+                    trigger_error('OpenSSL not installed');
                     return false;
                 }
 
@@ -808,6 +809,7 @@ class OAuth
     public function setRSACertificate($cert)
     {
         if (!extension_loaded('openssl') || !function_exists('openssl_pkey_get_private')) {
+            trigger_error('OpenSSL not installed');
             return false;
         }
 
