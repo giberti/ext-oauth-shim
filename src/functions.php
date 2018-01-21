@@ -24,6 +24,14 @@ if (!function_exists('oauth_get_sbs')) {
      */
     function oauth_get_sbs($http_method, $uri, array $request_parameters = [])
     {
+        // Raise errors for missing arguments
+        if (empty($uri)) {
+            trigger_error(__FUNCTION__ . '(): Invalid uri length (0)', E_WARNING);
+        }
+        if (empty($http_method)) {
+            trigger_error(__FUNCTION__ . '(): Invalid http method length (0)', E_WARNING);
+        }
+
         // Validate the request uri values
         $uriPieces = parse_url($uri);
         if (!isset($uriPieces['host']) || !isset($uriPieces['scheme'])) {
