@@ -49,7 +49,7 @@ $provider->tokenHandler(function ($provider) use ($tokens) {
     }
 
     // Check the verifier
-    if ($provider->verifier && $provider->verifier != $tokens['request-token-verifier']) {
+    if (!$provider->verifier || $provider->verifier != $tokens['request-token-verifier']) {
         return OAUTH_VERIFIER_INVALID;
     }
 
