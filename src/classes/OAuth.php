@@ -437,7 +437,6 @@ class OAuth
         ];
 
         if ($this->debug) {
-            $this->debugInfo['curlinfo'] = $responseInfo;
             $this->debugInfo['headers_sent'] = trim(implode("\n", $options[CURLOPT_HTTPHEADER]));
             $this->debugInfo['headers_recv'] = $this->lastResponseHeaders;
             $this->debugInfo['body_recv'] = $this->lastResponse;
