@@ -138,6 +138,37 @@ class FunctionsTest extends TestCase
         oauth_get_sbs('method', $url, []);
     }
 
+    public function provide_oauth_get_sbs_invalid_params()
+    {
+        return [
+            'missing method' => [
+                null,
+                'http://example.com/',
+                [],
+            ],
+            'missing url' => [
+                'method',
+                null,
+                [],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provide_oauth_get_sbs_invalid_params
+     */
+    public function test_oauth_get_sbs_empty_parameter_errors($method, $url, $params)
+    {
+        $e = null;
+        $returned = null;
+        try {
+            $returned = oauth_get_sbs($method, $url, $params);
+        } catch (Throwable $e) {
+        }
+        $this->assertInstanceOf(\PHPUnit\Framework\Error\Warning::class, $e, 'Warning was not raised');
+        $this->assertNull($returned);
+    }
+
     public function provide_oauth_urlencode()
     {
         return [
