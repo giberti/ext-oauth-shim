@@ -327,9 +327,9 @@ class OAuth
         if ($code >= 400) {
             $message   = sprintf(self::EXCEPTION_MESSAGE_FETCH_TEMPLATE, $code);
             $exception = new OAuthException($message, $code);
+            $exception->lastResponse = $this->lastResponse;
             if ($this->debug) {
-                $exception->lastResponse = $this->lastResponse;
-                $exception->debugInfo    = $this->debugInfo;
+                $exception->debugInfo = $this->debugInfo;
             }
 
             throw $exception;
@@ -436,6 +436,13 @@ class OAuth
             'size_upload'   => $responseInfo['size_upload'],
         ];
 
+        if ($this->debug) {
+            $this->debugInfo['curlinfo'] = $responseInfo;
+            $this->debugInfo['headers_sent'] = trim(implode("\n", $options[CURLOPT_HTTPHEADER]));
+            $this->debugInfo['headers_recv'] = $this->lastResponseHeaders;
+            $this->debugInfo['body_recv'] = $this->lastResponse;
+        }
+
         return true;
     }
 
@@ -483,6 +490,10 @@ class OAuth
 
         $sbs    = oauth_get_sbs($http_method, $url, $params);
         $secret = oauth_urlencode($this->consumerSecret) . '&' . oauth_urlencode($this->tokenSecret);
+
+        if ($this->debug) {
+            $this->debugInfo['sbs'] = $sbs;
+        }
 
         switch ($this->signatureMethod) {
             case OAUTH_SIG_METHOD_RSASHA1:
