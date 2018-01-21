@@ -279,6 +279,14 @@ class OAuthTest extends TestCase
                 'kTWOPD/wPM+drs3mz04WcY2iPvLzDCbBBpp9oU1ZGcc=',
                 'secret&secret',
             ],
+            'conflicting parameters get' => [
+                'get',
+                'http://example.com/?p1=qs1&p2=qs2',
+                ['p1' => 'ep1', 'p2' => 'ep2'],
+                'h/9k13VCF6Gk/B5Zxq+oYAb1oO8=',
+                'bsaeTrVcoahESdP5zMV3G42hhemUaCQslu0j5v4uqnM=',
+                'secret&secret',
+            ],
             'simple post'                => [
                 'post',
                 'http://example.com/',
