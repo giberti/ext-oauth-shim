@@ -280,7 +280,7 @@ class OAuth
         // Place OAuth parameters where they belong
         switch ($this->authType) {
             case OAUTH_AUTH_TYPE_AUTHORIZATION:
-                $finalHeaders['Authorization'] = $this->getRequestHeader($http_method, $protected_resource_url,
+                $http_headers['Authorization'] = $this->getRequestHeader($http_method, $protected_resource_url,
                     $extra_parameters);
                 break;
 
@@ -311,22 +311,30 @@ class OAuth
         $uaTemplate = 'Giberti/ext-oauth-shim (%s; PHP ' . phpversion() . ') ' . PHP_OS . ' (like PECL-OAuth/2.0.2)';
         switch ($this->requestEngine) {
             case OAUTH_REQENGINE_STREAMS:
-                $finalHeaders['User-Agent'] = sprintf($uaTemplate, 'stream');
-                $this->fetchStream($finalUrl, $finalParams, $finalMethod, $finalHeaders);
+                $http_headers['User-Agent'] = sprintf($uaTemplate, 'stream');
+                $finalHeaders               = $this->buildHeaders($http_headers);
+                $this->fetchStream($finalUrl, $finalParams, $finalMethod, $this->buildHeaders($finalHeaders));
                 break;
 
             case OAUTH_REQENGINE_CURL:
-                $finalHeaders['User-Agent'] = sprintf($uaTemplate, 'cURL');
-                $this->fetchCurl($finalUrl, $finalParams, $finalMethod, $finalHeaders);
+                $http_headers['User-Agent'] = sprintf($uaTemplate, 'cURL');
+                $finalHeaders               = $this->buildHeaders($http_headers);
+                $this->fetchCurl($finalUrl, $finalParams, $finalMethod, $this->buildHeaders($finalHeaders));
                 break;
 
+        }
+
+        if ($this->debug) {
+            $this->debugInfo['headers_sent'] = implode("\n", $finalHeaders);
+            $this->debugInfo['headers_recv'] = $this->lastResponseHeaders;
+            $this->debugInfo['body_recv']    = $this->lastResponse;
         }
 
         // Raise an exception for 4xx/5xx codes
         $code = $this->lastResponseInfo['http_code'];
         if ($code >= 400) {
-            $message   = sprintf(self::EXCEPTION_MESSAGE_FETCH_TEMPLATE, $code);
-            $exception = new OAuthException($message, $code);
+            $message                 = sprintf(self::EXCEPTION_MESSAGE_FETCH_TEMPLATE, $code);
+            $exception               = new OAuthException($message, $code);
             $exception->lastResponse = $this->lastResponse;
             if ($this->debug) {
                 $exception->debugInfo = $this->debugInfo;
@@ -349,16 +357,10 @@ class OAuth
 
     private function fetchCurl($url, $params, $method, $headers)
     {
-        // Map the header key/value pairs to the format cURL expects
-        $curlHeaders = [];
-        foreach ($headers as $key => $value) {
-            $curlHeaders[] = "{$key}: {$value}";
-        }
-
         // Set the request options
         $options = [
             CURLOPT_HEADER         => true,
-            CURLOPT_HTTPHEADER     => $curlHeaders,
+            CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_URL            => $url,
             CURLOPT_FOLLOWLOCATION => false,
@@ -436,18 +438,30 @@ class OAuth
             'size_upload'   => $responseInfo['size_upload'],
         ];
 
-        if ($this->debug) {
-            $this->debugInfo['headers_sent'] = trim(implode("\n", $options[CURLOPT_HTTPHEADER]));
-            $this->debugInfo['headers_recv'] = $this->lastResponseHeaders;
-            $this->debugInfo['body_recv'] = $this->lastResponse;
-        }
-
         return true;
     }
 
     private function fetchStream($url, $params, $method, $headers)
     {
         throw new Exception('Not implemented');
+    }
+
+    /**
+     * Converts key/value pairs into header strings
+     *
+     * @param array $headers
+     *
+     * @return array
+     */
+    private function buildHeaders(array $headers)
+    {
+        // Map the header key/value pairs to the format cURL|stream_context expects
+        $headerLines = [];
+        foreach ($headers as $key => $value) {
+            $headerLines[] = "{$key}: {$value}";
+        }
+
+        return $headerLines;
     }
 
     /**
@@ -498,6 +512,7 @@ class OAuth
             case OAUTH_SIG_METHOD_RSASHA1:
                 if (!extension_loaded('openssl') || !function_exists('openssl_sign') || !$this->rsaKey) {
                     trigger_error('OpenSSL not installed');
+
                     return false;
                 }
 
@@ -820,6 +835,7 @@ class OAuth
     {
         if (!extension_loaded('openssl') || !function_exists('openssl_pkey_get_private')) {
             trigger_error('OpenSSL not installed');
+
             return false;
         }
 
