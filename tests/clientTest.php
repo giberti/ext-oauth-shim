@@ -227,20 +227,38 @@ class ClientTest extends LocalServerTestCase
         $this->assertEquals('baz', $get['bar']);
     }
 
+    function provideRequestEngines() {
+        return [
+            'ext-curl' => [
+                null // OAUTH_REQENGINE_CURL isn't defined in PECL extension
+            ],
+            'php streams' => [
+                OAUTH_REQENGINE_STREAMS
+            ],
+        ];
+    }
+
     /**
      * @depends test_fetch_get
+     * @dataProvider provideRequestEngines
      */
-    public function test_fetch_using_streams()
+    public function test_fetch_using_mixed_params($engine)
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
-        $client->setRequestEngine(OAUTH_REQENGINE_STREAMS);
+        if ($engine) {
+            $client->setRequestEngine($engine);
+        }
 
         $requestUrl = $this->getLocalServerUrl() . '/request.php?bar=baz';
         $client->fetch($requestUrl, ['foo' => 'bar'], OAUTH_HTTP_METHOD_GET);
 
         $raw  = $client->getLastResponse();
         $data = json_decode($raw, true);
+        $this->assertTrue(is_array($data), 'Unable to parse JSON from response');
+        $this->assertArrayHasKey('get', $data);
+
+        // Check the passed values
         $get  = $data['get'];
         $this->assertArrayHasKey('foo', $get);
         $this->assertEquals('bar', $get['foo']);
