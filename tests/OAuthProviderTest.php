@@ -39,7 +39,7 @@ class OAuthProviderTest extends TestCase {
         ];
 
         $provider = new OAuthProvider($params);
-        $this->instanceOf(OAuthProvider::class);
+        $this->assertInstanceOf(OAuthProvider::class, $provider);
 
         $provider->consumerHandler(function($provider) {
             $provider->consumer_secret = 'secret';
