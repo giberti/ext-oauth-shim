@@ -313,19 +313,19 @@ class OAuth
             case OAUTH_REQENGINE_STREAMS:
                 $http_headers['User-Agent'] = sprintf($uaTemplate, 'stream');
                 $finalHeaders               = $this->buildHeaders($http_headers);
-                $this->fetchStream($finalUrl, $finalParams, $finalMethod, $this->buildHeaders($finalHeaders));
+                $this->fetchStream($finalUrl, $finalParams, $finalMethod, $finalHeaders);
                 break;
 
             case OAUTH_REQENGINE_CURL:
                 $http_headers['User-Agent'] = sprintf($uaTemplate, 'cURL');
                 $finalHeaders               = $this->buildHeaders($http_headers);
-                $this->fetchCurl($finalUrl, $finalParams, $finalMethod, $this->buildHeaders($finalHeaders));
+                $this->fetchCurl($finalUrl, $finalParams, $finalMethod, $finalHeaders);
                 break;
 
         }
 
         if ($this->debug) {
-            $this->debugInfo['headers_sent'] = implode("\n", $finalHeaders);
+            $this->debugInfo['headers_sent'] = $finalHeaders;
             $this->debugInfo['headers_recv'] = $this->lastResponseHeaders;
             $this->debugInfo['body_recv']    = $this->lastResponse;
         }
@@ -360,7 +360,7 @@ class OAuth
         // Set the request options
         $options = [
             CURLOPT_HEADER         => true,
-            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_HTTPHEADER     => explode("\n", $headers),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_URL            => $url,
             CURLOPT_FOLLOWLOCATION => false,
@@ -461,7 +461,7 @@ class OAuth
             $headerLines[] = "{$key}: {$value}";
         }
 
-        return $headerLines;
+        return implode("\n", $headerLines);
     }
 
     /**
