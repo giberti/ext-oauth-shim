@@ -481,7 +481,7 @@ class OAuth
         $this->signature = null;
 
         // Set the nonce, timestamp, and version if not yet set
-        $this->nonce     = $this->nonce ?: uniqid();
+        $this->nonce     = $this->nonce ?: uniqid(null, true);
         $this->timestamp = $this->timestamp ?: time();
         $this->version   = $this->version ?: '1.0';
 
