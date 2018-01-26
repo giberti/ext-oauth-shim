@@ -10,7 +10,7 @@ Provides `OAuth`, `OAuthException`, and `OAuthProvider` and meets the `ext-oauth
 
 ## Contributing
 
-This is a work in progress. Please consider helping flesh out the `OAuthProvider` class. The `OAuth` class work is underway in the [oauth-client branch](https://github.com/giberti/ext-oauth-shim/tree/oauth-client). This guide to [testing with docker](https://github.com/giberti/ext-oauth-shim/wiki/Testing-with-Docker) can be helpful when trying to contribute.
+This is a work in progress. Please consider helping flesh out the `OAuthProvider` class. This guide to [testing with docker](https://github.com/giberti/ext-oauth-shim/wiki/Testing-with-Docker) can be helpful when trying to contribute.
 
 Pull requests are welcome!
 
