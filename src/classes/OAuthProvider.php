@@ -81,6 +81,15 @@ class OAuthProvider
 
     const EXCEPTION_MESSAGE_SIGNATURE_MISMATCH = 'Signatures do not match';
 
+    /**
+     * Create the provider object
+     *
+     * When the class is called via CLI, the `oauth_*` parameters that would be passed via Uri or Authorization header
+     * should be included as the $params_array. In a more typical web request, they'll be parsed from the request
+     * directly.
+     *
+     * @param array $params_array
+     */
     public function __construct(array $params_array = [])
     {
 
@@ -88,7 +97,7 @@ class OAuthProvider
 
     final public function addRequiredParameter($req_params)
     {
-
+        throw new Exception('Not implemented');
     }
 
     public function callConsumerHandler()
@@ -129,6 +138,7 @@ class OAuthProvider
      *
      * @param string $uri
      * @param string $method
+     *
      * @throws OAuthException
      */
     public function checkOAuthRequest($uri = null, $method = null)
@@ -184,14 +194,78 @@ class OAuthProvider
         $this->consumerHandlerFunction = $callback_function;
     }
 
-    /*
-        final public static string generateToken ( int $size [, bool $strong = false ] )
-        public void is2LeggedEndpoint ( mixed $params_array )
-        public void isRequestTokenEndpoint ( bool $will_issue_request_token )
-        final public bool removeRequiredParameter ( string $req_params )
-        final public static string reportProblem ( string $oauthexception [, bool $send_headers = true ] )
-        final public bool setParam ( string $param_key [, mixed $param_val ] )
-    */
+    /**
+     * Generates a string of pseudo-random bytes.
+     *
+     * @param int  $size   The desired token length, in terms of bytes.
+     * @param bool $strong Setting to TRUE means /dev/random will be used for entropy, as otherwise the non-blocking
+     *                     /dev/urandom is used. This parameter is ignored on Windows.
+     */
+    final public static function generateToken($size, $strong = false)
+    {
+        throw new Exception('Not implemented');
+    }
+
+    /**
+     * The 2-legged flow, or request signing. It does not require a token.
+     *
+     * @param array $params_array
+     *
+     * @return void
+     */
+    public function is2LeggedEndpoint($params_array)
+    {
+        throw new Exception('Not implemented');
+    }
+
+    /**
+     * Sets isRequestTokenEndpoint
+     *
+     * @param bool $will_issue_request_token Sets whether or not it will issue a request token, thus determining if
+     *                                       OAuthProvider::tokenHandler() needs to be called.
+     *
+     * @return void
+     */
+    public function isRequestTokenEndpoint($will_issue_request_token)
+    {
+        throw new Exception('Not implemented');
+    }
+
+    /**
+     * Removes a required parameter.
+     *
+     * @param string $req_params The required parameter to be removed.
+     *
+     * @return bool
+     */
+    final public function removeRequiredParameter($req_params)
+    {
+        throw new Exception('Not implemented');
+    }
+
+    /**
+     * Pass in a problem as an OAuthException, with possible problems listed in the OAuth constants section.
+     *
+     * @param OAuthException $oauthexception
+     * @param bool           $send_headers
+     */
+    final public static function reportProblem($oauthexception, $send_headers = true)
+    {
+        throw new Exception('Not implemented');
+    }
+
+    /**
+     * Sets a parameter
+     *
+     * @param string $param_key The parameter key
+     * @param mixed  $param_val The optional parameter value
+     *
+     * @return bool
+     */
+    final public function setParam($param_key, $param_val = null)
+    {
+        throw new Exception('Not implemented');
+    }
 
     final public function setRequestTokenPath($path)
     {
