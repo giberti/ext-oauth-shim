@@ -405,8 +405,8 @@ class OAuth
                 break;
 
             case OAUTH_HTTP_METHOD_PUT:
-                $options[CURLOPT_POST]       = true;
-                $options[CURLOPT_POSTFIELDS] = $params;
+                $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
+                $options[CURLOPT_POSTFIELDS]    = $params;
                 break;
 
             case OAUTH_HTTP_METHOD_POST:
