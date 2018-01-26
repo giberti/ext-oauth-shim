@@ -443,7 +443,73 @@ class OAuth
 
     private function fetchStream($url, $params, $method, $headers)
     {
-        throw new Exception('Not implemented');
+
+        $content = is_array($params) ? http_build_query($params) : $params;
+        $config = [
+            'http' => [
+                'follow_location' => 0,
+                'header'          => $headers,
+                'ignore_errors'   => true,
+                'method'          => $method,
+            ],
+        ];
+        switch($method) {
+            case OAUTH_HTTP_METHOD_HEAD:
+            case OAUTH_HTTP_METHOD_GET:
+                if ($content && false === strpos($url, '?')) {
+                    $url .= "?{$content}";
+                } elseif ($content) {
+                    $url .= "&{$content}";
+                }
+                break;
+
+            default:
+                $config['http']['content'] = $content;
+        }
+
+        // make the request
+        $context          = stream_context_create($config);
+        $stream           = fopen($url, 'r', false, $context);
+        $response         = stream_get_contents($stream);
+        $responseMetadata = stream_get_meta_data($stream);
+        fclose($stream);
+
+        // Populate the response
+        $this->lastResponse        = $response;
+        $this->lastResponseHeaders = trim(implode("\n", $responseMetadata['wrapper_data']));
+        $this->lastResponseInfo    = [
+            'url'           => $url,
+            'content_type'  => null,
+            'http_code'     => 0,
+            'size_download' => strlen($response),
+            'size_upload'   => strlen($config['http']['content']),
+        ];
+
+        // Parse relevant data from response headers
+        foreach ($responseMetadata['wrapper_data'] as $idx => $header) {
+            if (0 === $idx) {
+                // Get the response code from `HTTP/1.1 200 OK`
+                list($junk, $this->lastResponseInfo['http_code']) = explode(" ", $header);
+                continue;
+            }
+
+            // content type
+            if (false !== stripos($header, 'content-type')) {
+                list($junk, $value) = explode(':', $header);
+                $value                                  = explode(';', $value);
+                $this->lastResponseInfo['content_type'] = trim($value[0]);
+                continue;
+            }
+
+            // content length
+            if (false !== stripos($header, 'content-length')) {
+                list($junk, $value) = explode(':', $header);
+                $this->lastResponseInfo['size_download'] = (int)trim($value);
+                continue;
+            }
+        }
+
+        return true;
     }
 
     /**
