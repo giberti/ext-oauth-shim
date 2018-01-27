@@ -133,10 +133,15 @@ class ClientTest extends LocalServerTestCase
         // Parse and check headers for expected values
         $responseHeaders = $client->getLastResponseHeaders();
         $headers         = $this->parseResponseHeaders($responseHeaders);
+        $this->assertArrayHasKey('content-type', $headers);
         $this->assertArrayHasKey('host', $headers);
-        $this->assertArrayHasKey('date', $headers);
         $this->assertArrayHasKey('connection', $headers);
         $this->assertArrayHasKey('x-powered-by', $headers);
+
+        // PHP 7.0 did not return the date
+        if (PHP_MAJOR_VERSION >= 7 && PHP_MINOR_VERSION >= 1) {
+            $this->assertArrayHasKey('date', $headers);
+        }
 
         // Check response for expected keys
         $raw  = $client->getLastResponse();
