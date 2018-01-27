@@ -78,6 +78,12 @@ class OAuthProvider
      */
     protected $requestTokenPath;
 
+    /**
+     * A list of required parameters for the request
+     *
+     * @var string[] $requiredParameters
+     */
+    private $requiredParameters;
 
     const EXCEPTION_MESSAGE_SIGNATURE_MISMATCH = 'Signatures do not match';
 
@@ -92,12 +98,12 @@ class OAuthProvider
      */
     public function __construct(array $params_array = [])
     {
-
+        $this->constructorParams = $params_array;
     }
 
     final public function addRequiredParameter($req_params)
     {
-        throw new Exception('Not implemented');
+        return $this->requiredParameters[$req_params] = true;
     }
 
     public function callConsumerHandler()
@@ -240,7 +246,7 @@ class OAuthProvider
      */
     final public function removeRequiredParameter($req_params)
     {
-        throw new Exception('Not implemented');
+        return $this->requiredParameters[$req_params];
     }
 
     /**
