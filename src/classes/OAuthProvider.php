@@ -300,12 +300,36 @@ class OAuthProvider
      */
     private function getFullRequestUrl($uri)
     {
-        $requestUrl = 'http';
-        if (isset($_SERVER['HTTPS'])) {
-            $requestUrl .= 's';
+        $request = parse_url($uri);
+
+        // Detect scheme
+        if (!isset($request['scheme'])) {
+            $request['scheme'] = 'http';
+            if (isset($_SERVER['HTTPS'])) {
+                $request['scheme'] .= 's';
+            }
         }
-        $requestUrl .= '://' . $_SERVER['HTTP_HOST'];
-        $requestUrl .= $uri;
+
+        // Detect host from request
+        if (!isset($request['host']) && isset($_SERVER['HTTP_HOST'])) {
+            $request['host'] = $_SERVER['HTTP_HOST'];
+        }
+
+        // Detect path
+        if (!isset($request['path']) && isset($_SERVER['REQUEST_URI'])) {
+            $request['path'] = $_SERVER['REQUEST_URI'];
+        }
+
+        // Detect query string
+        if (!isset($request['query']) && isset($_SERVER['QUERY_STRING'])) {
+            $request['query'] = $_SERVER['QUERY_STRING'];
+        }
+
+        // Combine into the full request url
+        $requestUrl = $request['scheme'] . '://' . $request['host'] . $request['path'];
+        if (isset($request['query'])) {
+            $requestUrl .= '?' . $request['query'];
+        }
 
         return $requestUrl;
     }
