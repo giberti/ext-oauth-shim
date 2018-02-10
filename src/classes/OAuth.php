@@ -482,7 +482,7 @@ class OAuth
             'content_type'  => null,
             'http_code'     => 0,
             'size_download' => strlen($response),
-            'size_upload'   => strlen($config['http']['content']),
+            'size_upload'   => isset($config['http']['content']) ? strlen($config['http']['content']) : 0,
         ];
 
         // Parse relevant data from response headers
