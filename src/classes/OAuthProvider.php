@@ -225,10 +225,17 @@ class OAuthProvider
      * @param int  $size   The desired token length, in terms of bytes.
      * @param bool $strong Setting to TRUE means /dev/random will be used for entropy, as otherwise the non-blocking
      *                     /dev/urandom is used. This parameter is ignored on Windows.
+     *
+     * @return string The requested random bytes
      */
     final public static function generateToken($size, $strong = false)
     {
-        throw new Exception('Not implemented');
+        if ($size < 1) {
+            trigger_error('OAuthProvider::generateToken(): Cannot generate token with a size of less than 1 or greater than ' . PHP_INT_MAX, E_USER_WARNING);
+        }
+
+        // PHP7 only!
+        return random_bytes($size);
     }
 
     /**

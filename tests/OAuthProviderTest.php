@@ -96,12 +96,36 @@ class OAuthProviderTest extends TestCase {
         $provider->addRequiredParameter('foo');
         try {
             $provider->checkOAuthRequest('http://example.com/', 'get');
-        } catch (OAuthException $e) {}
+        } catch (Throwable $e) {}
 
         $this->assertInstanceOf(OAuthException::class, $e);
         $this->assertEquals(OAUTH_PARAMETER_ABSENT, $e->getCode(), 'Expected parameter absent code');
         $this->assertEquals('Missing required parameters', $e->getMessage());
         $this->assertEquals($e->additionalInfo, 'foo', 'Expected to find additional information set on undocumented property');
+    }
+
+    /**
+     * Make sure we get a reasonable length token back
+     */
+    public function test_generateToken() {
+        // 2^16 = 65,536
+        for ($exp = 1; $exp < 16; $exp++) {
+            $bytes = pow(2, $exp);
+            $token = OAuthProvider::generateToken($bytes);
+            $this->assertEquals($bytes, strlen($token), "Expected {$bytes} byte token");
+        }
+    }
+
+    /**
+     * Make sure we get a reasonable length token back
+     */
+    public function test_generateTokenError() {
+        $e = null;
+        try {
+            OAuthProvider::generateToken(0);
+        } catch (Throwable $e) {}
+        $this->assertInstanceOf(\PHPUnit\Framework\Error\Warning::class, $e);
+        $this->assertStringStartsWith('OAuthProvider::generateToken(): Cannot generate token with a size of less than 1 or greater than ', $e->getMessage());
     }
 
     /**
