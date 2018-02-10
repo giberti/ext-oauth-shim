@@ -38,9 +38,11 @@ class OAuthProviderTest extends TestCase {
             'oauth_signature_method' => 'HMAC-SHA1',
         ];
 
+        // Create the provider
         $provider = new OAuthProvider($params);
         $this->assertInstanceOf(OAuthProvider::class, $provider);
 
+        // Add handlers
         $provider->consumerHandler(function($provider) {
             $provider->consumer_secret = 'secret';
             return OAUTH_OK;
@@ -49,11 +51,15 @@ class OAuthProviderTest extends TestCase {
             $provider->token_secret = 'secret';
             return OAUTH_OK;
         });
-
         $provider->timestampNonceHandler(function() { return OAUTH_OK; });
+
+        // Check the request
         $provider->checkOAuthRequest('http://example.com/', 'get');
 
-        $this->assertEquals('consumer', $provider->consumer_key);
+        // Assert values are expected
+        $this->assertEquals($params['oauth_consumer_key'], $provider->consumer_key);
+        $this->assertEquals($params['oauth_token'], $provider->token);
+        $this->assertEquals($params['oauth_signature'], $provider->signature);
     }
 
 }
