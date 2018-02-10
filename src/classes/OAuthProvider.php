@@ -83,9 +83,10 @@ class OAuthProvider
      *
      * @var string[] $requiredParameters
      */
-    private $requiredParameters;
+    private $requiredParameters = [];
 
-    const EXCEPTION_MESSAGE_SIGNATURE_MISMATCH = 'Signatures do not match';
+    const EXCEPTION_MESSAGE_MISSING_REQUIRED_PARAMS = 'Missing required parameters';
+    const EXCEPTION_MESSAGE_SIGNATURE_MISMATCH      = 'Signatures do not match';
 
     /**
      * Create the provider object
@@ -101,6 +102,13 @@ class OAuthProvider
         $this->constructorParams = $params_array;
     }
 
+    /**
+     * Marks a parameter as required for the request
+     *
+     * @param string $req_params
+     *
+     * @return bool
+     */
     final public function addRequiredParameter($req_params)
     {
         return $this->requiredParameters[$req_params] = true;
@@ -155,6 +163,17 @@ class OAuthProvider
         $requestUrl    = $this->getFullRequestUrl($uri);
         $requestParams = $this->getRequestParams();
         $oauthParams   = $this->getOAuthParams();
+
+        // Check required parameters were passed where expected
+        foreach ($this->requiredParameters as $key => $required) {
+            if (!isset($this->constructorParams[$key])
+                && !isset($oauthParams[$key])
+            ) {
+                $e = new OAuthException(self::EXCEPTION_MESSAGE_MISSING_REQUIRED_PARAMS, OAUTH_PARAMETER_ABSENT);
+                $e->additionalInfo = $key;
+                throw $e;
+            }
+        }
 
         // Set properties
         foreach ($oauthParams as $key => $value) {
@@ -246,7 +265,9 @@ class OAuthProvider
      */
     final public function removeRequiredParameter($req_params)
     {
-        return $this->requiredParameters[$req_params];
+        unset($this->requiredParameters[$req_params]);
+
+        return true;
     }
 
     /**
@@ -355,11 +376,20 @@ class OAuthProvider
     }
 
     /**
+     * Get the Parameters passed via query string, POST or in the constructor
+     *
      * @return array Parameters passed via query string or POST
      */
     private function getRequestParams()
     {
-        return $_REQUEST;
+        $params = $_REQUEST;
+        if (0 === count($params)) {
+            foreach ($this->constructorParams as $key => $value) {
+                $params[$key] = $value;
+            }
+        }
+
+        return $params;
     }
 
     /**
