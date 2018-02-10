@@ -369,7 +369,7 @@ class OAuthProvider
     }
 
     /**
-     * Collect oauth_ params from Authorization header and URL
+     * Collect oauth_ params from Authorization header, request or constructor values
      *
      * @return array $params;
      */
@@ -394,6 +394,13 @@ class OAuthProvider
 
         // Pull parameters from $_GET
         foreach ($_GET as $key => $value) {
+            if ('oauth_' === substr($key, 0, 6)) {
+                $params[$key] = $value;
+            }
+        }
+
+        // Pull from constructor values
+        foreach ($this->constructorParams as $key => $value) {
             if ('oauth_' === substr($key, 0, 6)) {
                 $params[$key] = $value;
             }
