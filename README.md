@@ -95,7 +95,7 @@ $response = $client->fetch('https://example.com/image/', $image, 'POST', $header
 
 Some providers do not automatically issue Access Tokens, if the API you are interacting with doesn't give you this token, you will need to create one.
 
-```
+```php
 // Replace with your values
 $consumer       = 'consumer';
 $consumerSecret = 'secret';
