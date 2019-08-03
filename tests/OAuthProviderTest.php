@@ -6,14 +6,14 @@ class OAuthProviderTest extends TestCase {
 
     public $server;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
         $this->server = $_SERVER;
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 

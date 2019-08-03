@@ -14,8 +14,8 @@
         "php": ">=7.0"
     },
     "require-dev": {
-        "giberti/phpunit-local-server": "^0.1",
-        "phpunit/phpunit": "^6.5"
+        "giberti/phpunit-local-server": "^1.0",
+        "phpunit/phpunit": "^7.0 || ^8.0"
     },
     "suggest": {
         "ext-oauth": "You should use the pecl OAuth extension, install with `pecl install oauth`",

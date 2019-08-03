@@ -12,7 +12,7 @@ class OAuthTest extends TestCase
      */
     public static $tokens;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         $tokenFile = __DIR__ . '/localhost/tokens.php';

@@ -12,7 +12,7 @@ class ClientTest extends LocalServerTestCase
      */
     public static $tokens;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         $docRoot   = __DIR__ . '/localhost';
