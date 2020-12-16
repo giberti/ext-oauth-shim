@@ -5,6 +5,9 @@
 /vendor
 composer.lock
 
+# PHPUnit cache
+.phpunit.result.cache
+
 # Common OS Files
 Thumbs.db
 ehthumbs.db
