@@ -167,9 +167,9 @@ class FunctionsTest extends TestCase
         } catch (Throwable $e) {
         }
         $this->assertInstanceOf(
-            Warning::class,
+            Throwable::class,
             $e,
-            'Expected Warning not raised, got ' . get_class($e) . ' instead'
+            'Expected Throwable not raised, got ' . get_class($e) . ' instead'
         );
         $this->assertNull($returned);
     }
