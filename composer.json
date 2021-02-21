@@ -11,6 +11,7 @@
     ],
     "require": {
         "ext-curl": "*",
+        "ext-http": "*",
         "php": "^7.2 || ^8.0"
     },
     "require-dev": {
