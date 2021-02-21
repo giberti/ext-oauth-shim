@@ -1,5 +1,6 @@
 <?php
 
+use PHPUnit\Framework\Error\Warning;
 use PHPUnit\Framework\TestCase;
 
 class FunctionsTest extends TestCase
@@ -165,7 +166,11 @@ class FunctionsTest extends TestCase
             $returned = oauth_get_sbs($method, $url, $params);
         } catch (Throwable $e) {
         }
-        $this->assertInstanceOf(\PHPUnit\Framework\Error\Warning::class, $e, 'Warning was not raised');
+        $this->assertInstanceOf(
+            Warning::class,
+            $e,
+            'Expected Warning not raised, got ' . get_class($e) . ' instead'
+        );
         $this->assertNull($returned);
     }
 
