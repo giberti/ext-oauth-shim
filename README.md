@@ -6,7 +6,7 @@ Aims to provides support for `OAuth`, `OAuthException`, and `OAuthProvider` and 
 
 ## Quality
 
-[![Build Status](https://api.travis-ci.org/giberti/ext-oauth-shim.svg?branch=master)](https://travis-ci.org/giberti/ext-oauth-shim)
+[![Build Status](https://api.travis-ci.com/giberti/ext-oauth-shim.svg?branch=master)](https://travis-ci.com/giberti/ext-oauth-shim)
 
 ## Contributing
 
@@ -16,7 +16,7 @@ This is a work in progress, but the `OAuthClient` is usable as an alternative on
 
 ### Installing
 
-This library requires PHP 7.0 or newer to use; tests require PHP 7.1.
+This library requires PHP 7.2 or newer to use.
 
 ```
 composer require giberti/ext-oauth-shim
