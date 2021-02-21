@@ -14,7 +14,7 @@
         "php": "^7.2 || ^8.0"
     },
     "require-dev": {
-        "giberti/phpunit-local-server": "^1.0",
+        "giberti/phpunit-local-server": "^2.1",
         "phpunit/phpunit": "^7.0 || ^8.0"
     },
     "suggest": {
