@@ -2,11 +2,11 @@
 
 Aims to provides support for `OAuth`, `OAuthException`, and `OAuthProvider` and satisfy the `ext-oauth` requirement for composer packages that require it. This is a work in progress.
 
-**WARNING:** If possible, use the [`PECL` extension](https://pecl.php.net/package/oauth). It's faster and more complete.
+**WARNING:** If possible, use the [`PECL` extension](https://pecl.php.net/package/oauth). It's faster!
 
 ## Quality
 
-[![Build Status](https://api.travis-ci.com/giberti/ext-oauth-shim.svg?branch=master)](https://travis-ci.com/giberti/ext-oauth-shim)
+[![Build Status](https://app.travis-ci.com/giberti/ext-oauth-shim.svg?branch=main)](https://app.travis-ci.com/github/giberti/ext-oauth-shim)
 
 ## Contributing
 
@@ -16,7 +16,7 @@ This is a work in progress, but the `OAuthClient` is usable as an alternative on
 
 ### Installing
 
-This library requires PHP 7.2 or newer to use.
+This library requires PHP 7.3 or newer to use, including 8.0 or 8.1.
 
 ```
 composer require giberti/ext-oauth-shim
