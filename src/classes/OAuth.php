@@ -547,7 +547,7 @@ class OAuth
         $this->signature = null;
 
         // Set the nonce, timestamp, and version if not yet set
-        $this->nonce     = $this->nonce ?: uniqid(null, true);
+        $this->nonce     = $this->nonce ?: uniqid('', true);
         $this->timestamp = $this->timestamp ?: time();
         $this->version   = $this->version ?: '1.0';
 
@@ -568,7 +568,7 @@ class OAuth
         }
 
         $sbs    = oauth_get_sbs($http_method, $url, $params);
-        $secret = oauth_urlencode($this->consumerSecret) . '&' . oauth_urlencode($this->tokenSecret);
+        $secret = oauth_urlencode((string) $this->consumerSecret) . '&' . oauth_urlencode((string) $this->tokenSecret);
 
         if ($this->debug) {
             $this->debugInfo['sbs'] = $sbs;
