@@ -4,6 +4,10 @@ Aims to provides support for `OAuth`, `OAuthException`, and `OAuthProvider` and 
 
 **WARNING:** If possible, use the [`PECL` extension](https://pecl.php.net/package/oauth). It's faster!
 
+## Quality
+
+[![Build and Test](https://github.com/giberti/ext-oauth-shim/actions/workflows/test-php.yml/badge.svg)](https://github.com/giberti/ext-oauth-shim/actions/workflows/test-php.yml)
+
 ## Contributing
 
 This is a work in progress, but the `OAuthClient` is usable as an alternative on systems that lack support. In some cases it may be preferred as it will not fatal in some edge cases where the PECL client will.
