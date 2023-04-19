@@ -23,4 +23,9 @@ class OAuthException extends \Exception
      */
     public $debugInfo;
 
+
+    /**
+     * @var $additionalInfo
+     */
+    public $additionalInfo;
 }

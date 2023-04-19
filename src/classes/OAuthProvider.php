@@ -85,6 +85,11 @@ class OAuthProvider
      */
     private $requiredParameters = [];
 
+    /**
+     * @var array $constructorParams
+     */
+    private $constructorParams = [];
+
     const EXCEPTION_MESSAGE_MISSING_REQUIRED_PARAMS = 'Missing required parameters';
     const EXCEPTION_MESSAGE_SIGNATURE_MISMATCH      = 'Signatures do not match';
 
