@@ -16,7 +16,7 @@ This is a work in progress, but the `OAuthClient` is usable as an alternative on
 
 ### Installing
 
-This library requires PHP 7.3 or newer to use, including 8.0 or 8.1.
+This library requires PHP 7.3 or newer to use, including 8.x up to version 8.3.
 
 ```
 composer require giberti/ext-oauth-shim
