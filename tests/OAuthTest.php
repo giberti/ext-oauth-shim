@@ -22,13 +22,13 @@ class OAuthTest extends TestCase
         static::$tokens = include $tokenFile;
     }
 
-    public function test_create_without_consumer_key()
+    public function test_create_without_consumer_key(): void
     {
         $this->expectException(OAuthException::class);
         new OAuth();
     }
 
-    public function test_create_without_consumer_key_message()
+    public function test_create_without_consumer_key_message(): void
     {
         $e = null;
         try {
@@ -42,13 +42,13 @@ class OAuthTest extends TestCase
         $this->assertEquals(-1, $e->getCode());
     }
 
-    public function test_create_without_consumer_secret()
+    public function test_create_without_consumer_secret(): void
     {
         $this->expectException(OAuthException::class);
         new OAuth('consumer');
     }
 
-    public function test_create_without_consumer_key_secret_message()
+    public function test_create_without_consumer_key_secret_message(): void
     {
         $e = null;
         try {
@@ -62,7 +62,7 @@ class OAuthTest extends TestCase
         $this->assertEquals(-1, $e->getCode());
     }
 
-    public function test_set_version()
+    public function test_set_version(): void
     {
         $o = new OAuth('client', 'secret');
         $this->assertTrue($o->setVersion('1.0'), 'Setting the version should return true');
@@ -76,7 +76,7 @@ class OAuthTest extends TestCase
         }
     }
 
-    public function test_create_with_signature_method()
+    public function test_create_with_signature_method(): void
     {
         $o = new OAuth('consumer', 'secret', OAUTH_SIG_METHOD_HMACSHA1);
         $this->assertInstanceOf(OAuth::class, $o);
@@ -85,16 +85,15 @@ class OAuthTest extends TestCase
         $this->assertInstanceOf(OAuth::class, $o);
     }
 
-    public function test_create_with_auth_type()
+    public function test_create_with_auth_type(): void
     {
         $o = new OAuth('consumer', 'secret', OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
         $this->assertInstanceOf(OAuth::class, $o);
     }
 
-    public function test_setAuthType()
+    public function test_setAuthType(): void
     {
         $o = new OAuth('consumer', 'secret');
-        $this->assertInstanceOf(OAuth::class, $o);
         $this->assertTrue($o->setAuthType(OAUTH_AUTH_TYPE_FORM));
 
         try {
@@ -106,7 +105,7 @@ class OAuthTest extends TestCase
         }
     }
 
-    public function test_setRSACertificate()
+    public function test_setRSACertificate(): void
     {
         if (!extension_loaded('openssl')) {
             $this->markTestSkipped('OpenSSL is required for RSA signing');
@@ -124,7 +123,7 @@ class OAuthTest extends TestCase
         }
     }
 
-    public function test_enable_disable_debug_property()
+    public function test_enable_disable_debug_property(): void
     {
         $o = new OAuth('consumer', 'secret');
         $this->assertFalse($o->debug, 'Debug should default to false');
@@ -132,13 +131,9 @@ class OAuthTest extends TestCase
         $this->assertTrue($o->debug, 'Debug should be enabled after calling enableDebug()');
         $o->disableDebug();
         $this->assertFalse($o->debug, 'Debug should be disabled after calling disableDebug()');
-        $o->debug = true;
-        $this->assertTrue($o->debug, 'Debug should be enabled after setting property to true');
-        $o->debug = false;
-        $this->assertFalse($o->debug, 'Debug should be disabled after setting property to false');
     }
 
-    public function test_enable_disable_ssl_check_property()
+    public function test_enable_disable_ssl_check_property(): void
     {
         $o = new OAuth('consumer', 'secret');
         $this->assertTrue((bool)$o->sslChecks, 'SSL checks should be enabled by default');
@@ -157,7 +152,7 @@ class OAuthTest extends TestCase
     /**
      * @depends test_enable_disable_ssl_check_property
      */
-    public function test_setSSLChecks()
+    public function test_setSSLChecks(): void
     {
         $o = new OAuth('consumer', 'secret');
         $this->assertEquals(OAUTH_SSLCHECK_BOTH, $o->sslChecks, 'Checks should be enabled');
@@ -180,7 +175,7 @@ class OAuthTest extends TestCase
         $this->assertEquals(OAUTH_SSLCHECK_PEER, $o->sslChecks);
     }
 
-    public function test_setNonce()
+    public function test_setNonce(): void
     {
         $o = new OAuth('consumer', 'secret');
         $this->assertTrue($o->setNonce('nonce'));
@@ -196,10 +191,10 @@ class OAuthTest extends TestCase
         $this->assertEquals(503, $e->getCode());
     }
 
-    public function test_setTimestamp()
+    public function test_setTimestamp(): void
     {
         $o = new OAuth('consumer', 'secret');
-        $this->assertTrue($o->setTimestamp(time()));
+        $this->assertTrue($o->setTimestamp((string)time()));
 
         $e = null;
         try {
@@ -211,13 +206,13 @@ class OAuthTest extends TestCase
         $this->assertEquals(503, $e->getCode());
     }
 
-    public function test_setToken()
+    public function test_setToken(): void
     {
         $o = new OAuth('consumer', 'secret');
         $this->assertTrue($o->setToken(null, null));
     }
 
-    public function test_setRequestEngine()
+    public function test_setRequestEngine(): void
     {
         $o = new OAuth('consumer', 'secret');
         $o->setRequestEngine(OAUTH_REQENGINE_STREAMS);
@@ -232,19 +227,18 @@ class OAuthTest extends TestCase
         $this->assertEquals(503, $e->getCode());
     }
 
-    public function test_setCAPath_and_getCAPath()
+    public function test_setCAPath_and_getCAPath(): void
     {
         $o = new OAuth('consumer', 'secret');
         $this->assertTrue($o->setCAPath('path', 'info'));
         $v = $o->getCAPath();
-        $this->assertTrue(is_array($v));
         $this->assertArrayHasKey('ca_info', $v);
         $this->assertArrayHasKey('ca_path', $v);
         $this->assertEquals('info', $v['ca_info']);
         $this->assertEquals('path', $v['ca_path']);
     }
 
-    public function test_generateSignature_fails_with_invalid_url()
+    public function test_generateSignature_fails_with_invalid_url(): void
     {
         $this->expectException(OAuthException::class);
         $o = new OAuth('consumer', 'secret');
@@ -252,7 +246,7 @@ class OAuthTest extends TestCase
     }
 
 
-    public function provide_signatureTestData()
+    public function provide_signatureTestData(): array
     {
         return [
             'simple get'                 => [
@@ -338,7 +332,7 @@ class OAuthTest extends TestCase
         $sha1Signature,
         $sha256Signature,
         $plaintextSignature
-    ) {
+    ): void {
         $clientSha1      = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA1);
         $clientSha256    = $this->getConfiguredClient(OAUTH_SIG_METHOD_HMACSHA256);
         $clientPlaintext = $this->getConfiguredClient(OAUTH_SIG_METHOD_PLAINTEXT);
@@ -348,7 +342,7 @@ class OAuthTest extends TestCase
         $this->assertEquals($plaintextSignature, $clientPlaintext->generateSignature($method, $uri, $params));
     }
 
-    public function test_rsaSignatureGeneration()
+    public function test_rsaSignatureGeneration(): void
     {
         if (!extension_loaded('openssl')) {
             $this->markTestSkipped('OpenSSL is required for RSA signing');
@@ -365,7 +359,7 @@ class OAuthTest extends TestCase
     /**
      * @depends test_signatureGeneration
      */
-    public function test_getRequestHeader()
+    public function test_getRequestHeader(): void
     {
         $data      = $this->provide_signatureTestData()['simple get'];
         $method    = $data[0];
@@ -400,13 +394,13 @@ class OAuthTest extends TestCase
      *
      * @return OAuth
      */
-    private function getConfiguredClient($signatureMethod)
+    private function getConfiguredClient(string $signatureMethod): \OAuth
     {
         $client = new OAuth('consumer', static::$tokens['consumer-tokens']['consumer'], $signatureMethod);
         $client->setToken('token', static::$tokens['access-tokens']['token']);
         // Use a known nonce, timestamp and version
         $client->setNonce('nonce');
-        $client->setTimestamp(2);
+        $client->setTimestamp('2');
         $client->setVersion('1.0');
 
         return $client;

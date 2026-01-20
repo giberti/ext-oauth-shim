@@ -80,7 +80,7 @@ try {
     return;
 }
 
-$status = isset($_GET['status']) ? $_GET['status'] : 200;
+$status = $_GET['status'] ?? 200;
 header('HTTP/1.1 ' . $status);
 header('Content-type: application/json');
 $data = [

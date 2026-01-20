@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 class OAuthProviderTest extends TestCase {
 
-    public $server;
+    public ?array $server;
 
     public function setUp(): void
     {
@@ -26,7 +26,7 @@ class OAuthProviderTest extends TestCase {
     /**
      * Test a simple, known good request can be instantiated and resolved
      */
-    public function test_constructor()
+    public function test_constructor(): void
     {
         $params = [
             'oauth_consumer_key'     => 'consumer',
@@ -53,7 +53,8 @@ class OAuthProviderTest extends TestCase {
      *
      * @depends test_constructor
      */
-    public function test_addRequiredParameter() {
+    public function test_addRequiredParameter(): void
+    {
         $params = [
             'oauth_consumer_key'     => 'consumer',
             'oauth_nonce'            => 'nonce',
@@ -80,7 +81,8 @@ class OAuthProviderTest extends TestCase {
      *
      * @depends test_constructor
      */
-    public function test_addRequiredParameterMissing() {
+    public function test_addRequiredParameterMissing(): void
+    {
         $params = [
             'oauth_consumer_key'     => 'consumer',
             'oauth_nonce'            => 'nonce',
@@ -101,13 +103,14 @@ class OAuthProviderTest extends TestCase {
         $this->assertInstanceOf(OAuthException::class, $e);
         $this->assertEquals(OAUTH_PARAMETER_ABSENT, $e->getCode(), 'Expected parameter absent code');
         $this->assertEquals('Missing required parameters', $e->getMessage());
-        $this->assertEquals($e->additionalInfo, 'foo', 'Expected to find additional information set on undocumented property');
+        $this->assertEquals('foo', $e->additionalInfo, 'Expected to find additional information set on undocumented property');
     }
 
     /**
      * Make sure we get a reasonable length token back
      */
-    public function test_generateToken() {
+    public function test_generateToken(): void
+    {
         // 2^16 = 65,536
         for ($exp = 1; $exp < 16; $exp++) {
             $bytes = pow(2, $exp);
@@ -119,7 +122,8 @@ class OAuthProviderTest extends TestCase {
     /**
      * Make sure we get a reasonable length token back
      */
-    public function test_generateTokenError() {
+    public function test_generateTokenError(): void
+    {
         $e = null;
         try {
             OAuthProvider::generateToken(0);
@@ -133,10 +137,10 @@ class OAuthProviderTest extends TestCase {
      *
      * @return OAuthProvider
      */
-    private function createProviderWithParams($params) {
+    private function createProviderWithParams($params): \OAuthProvider
+    {
         // Create provider
         $provider = new OAuthProvider($params);
-        $this->assertInstanceOf(OAuthProvider::class, $provider);
 
         // Add handlers
         $provider->consumerHandler(function($provider) {

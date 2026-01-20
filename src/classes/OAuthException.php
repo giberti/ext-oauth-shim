@@ -18,14 +18,7 @@ class OAuthException extends \Exception
      */
     public $lastResponse;
 
-    /**
-     * @var $debugInfo
-     */
     public $debugInfo;
 
-
-    /**
-     * @var $additionalInfo
-     */
     public $additionalInfo;
 }

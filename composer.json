@@ -15,7 +15,8 @@
     },
     "require-dev": {
         "giberti/phpunit-local-server": "^3.0",
-        "phpunit/phpunit": "^8.0 || ^9.0"
+        "phpunit/phpunit": "^9.0",
+        "phpstan/phpstan": "^2.1"
     },
     "suggest": {
         "ext-oauth": "You should use the pecl OAuth extension, install with `pecl install oauth`",

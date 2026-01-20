@@ -25,7 +25,7 @@ class ClientTest extends LocalServerTestCase
         static::createServerWithDocroot($docRoot);
     }
 
-    public function test_getRequestToken()
+    public function test_getRequestToken(): void
     {
         $client = $this->getClient('consumer');
 
@@ -37,7 +37,7 @@ class ClientTest extends LocalServerTestCase
         $this->assertEquals('request-secret', $requestToken['oauth_token_secret']);
     }
 
-    public function test_getRequestToken_invalid_consumer()
+    public function test_getRequestToken_invalid_consumer(): void
     {
         $this->expectException(OAuthException::class);
         $client = $this->getClient('consumer-invalid');
@@ -46,7 +46,7 @@ class ClientTest extends LocalServerTestCase
         $client->getRequestToken($requestTokenUrl, 'http://example.com/');
     }
 
-    public function test_getRequestToken_throttled_consumer()
+    public function test_getRequestToken_throttled_consumer(): void
     {
         $this->expectException(OAuthException::class);
         $client = $this->getClient('consumer-refused');
@@ -55,7 +55,7 @@ class ClientTest extends LocalServerTestCase
         $client->getRequestToken($requestTokenUrl, 'http://example.com/');
     }
 
-    public function test_getAccessToken()
+    public function test_getAccessToken(): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('request-token', static::$tokens['request-tokens']['request-token']);
@@ -68,7 +68,7 @@ class ClientTest extends LocalServerTestCase
         $this->assertEquals('secret', $accessToken['oauth_token_secret']);
     }
 
-    public function test_getAccessToken_invalid_verifier()
+    public function test_getAccessToken_invalid_verifier(): void
     {
         $this->expectException(OAuthException::class);
         $client = $this->getClient('consumer');
@@ -78,7 +78,7 @@ class ClientTest extends LocalServerTestCase
         $client->getAccessToken($accessTokenUrl, null, '987654');
     }
 
-    public function test_getAccessToken_missing_verifier()
+    public function test_getAccessToken_missing_verifier(): void
     {
         $this->expectException(OAuthException::class);
         $client = $this->getClient('consumer');
@@ -88,7 +88,7 @@ class ClientTest extends LocalServerTestCase
         $client->getAccessToken($accessTokenUrl);
     }
 
-    public function test_getAccessToken_expired_token()
+    public function test_getAccessToken_expired_token(): void
     {
         $this->expectException(OAuthException::class);
         $client = $this->getClient('consumer');
@@ -98,7 +98,7 @@ class ClientTest extends LocalServerTestCase
         $client->getAccessToken($accessTokenUrl, null, static::$tokens['request-token-verifier']);
     }
 
-    public function test_getAccessToken_invalid_token()
+    public function test_getAccessToken_invalid_token(): void
     {
         $this->expectException(OAuthException::class);
         $client = $this->getClient('consumer');
@@ -112,7 +112,7 @@ class ClientTest extends LocalServerTestCase
      * Performs a simple GET request, may fail if OAuthProvider has issues and doesn't provide the correct responses
      * from the server
      */
-    public function test_fetch_get()
+    public function test_fetch_get(): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
@@ -123,7 +123,7 @@ class ClientTest extends LocalServerTestCase
         // Check info for expected keys
         $responseInfo = $client->getLastResponseInfo();
         $this->normalizeResponseInfo($responseInfo);
-        $this->assertTrue(is_array($responseInfo), 'ResponseInfo should be an array');
+        $this->assertIsArray($responseInfo, 'ResponseInfo should be an array');
         $this->assertArrayHasKey('url', $responseInfo);
         $this->assertArrayHasKey('content_type', $responseInfo);
         $this->assertArrayHasKey('http_code', $responseInfo);
@@ -137,17 +137,12 @@ class ClientTest extends LocalServerTestCase
         $this->assertArrayHasKey('host', $headers);
         $this->assertArrayHasKey('connection', $headers);
         $this->assertArrayHasKey('x-powered-by', $headers);
-
-        // PHP 7.0 did not return the date
-        if (PHP_MAJOR_VERSION >= 7 && PHP_MINOR_VERSION >= 1) {
-            $this->assertArrayHasKey('date', $headers);
-        }
+        $this->assertArrayHasKey('date', $headers);
 
         // Check response for expected keys
         $raw  = $client->getLastResponse();
         $data = json_decode($raw, true);
-        $this->assertTrue(is_array($data),
-            'Response body was not valid JSON. Response was ' . number_format(strlen($raw)) . ' bytes of "' . $responseInfo['content_type'] . '"');
+        $this->assertIsArray($data, 'Response body was not valid JSON. Response was ' . number_format(strlen($raw)) . ' bytes of "' . $responseInfo['content_type'] . '"');
         $this->assertArrayHasKey('get', $data);
         $this->assertArrayHasKey('post', $data);
         $this->assertArrayHasKey('input', $data);
@@ -159,7 +154,7 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_only_url()
+    public function test_fetch_only_url(): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
@@ -169,10 +164,10 @@ class ClientTest extends LocalServerTestCase
 
         $raw  = $client->getLastResponse();
         $data = json_decode($raw, true);
-        $this->assertTrue(is_array($data));
+        $this->assertIsArray($data);
     }
 
-    public function provideStatusCodes()
+    public function provideStatusCodes(): array
     {
         return [
             'OK'                => [200],
@@ -190,7 +185,7 @@ class ClientTest extends LocalServerTestCase
      * @dataProvider provideStatusCodes
      * @depends      test_fetch_get
      */
-    public function test_fetch_get_with_status($status)
+    public function test_fetch_get_with_status($status): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
@@ -215,7 +210,7 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_get_with_params()
+    public function test_fetch_get_with_params(): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
@@ -232,7 +227,8 @@ class ClientTest extends LocalServerTestCase
         $this->assertEquals('baz', $get['bar']);
     }
 
-    function provideRequestEngines() {
+    public function provideRequestEngines(): array
+    {
         return [
             'ext-curl' => [
                 null // OAUTH_REQENGINE_CURL isn't defined in PECL extension
@@ -247,7 +243,7 @@ class ClientTest extends LocalServerTestCase
      * @depends test_fetch_get
      * @dataProvider provideRequestEngines
      */
-    public function test_fetch_using_mixed_params($engine)
+    public function test_fetch_using_mixed_params($engine): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
@@ -260,7 +256,7 @@ class ClientTest extends LocalServerTestCase
 
         $raw  = $client->getLastResponse();
         $data = json_decode($raw, true);
-        $this->assertTrue(is_array($data), 'Unable to parse JSON from response');
+        $this->assertIsArray($data, 'Unable to parse JSON from response');
         $this->assertArrayHasKey('get', $data);
 
         // Check the passed values
@@ -274,7 +270,7 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_using_streams()
+    public function test_fetch_using_streams(): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
@@ -295,7 +291,7 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_post_with_params()
+    public function test_fetch_post_with_params(): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
@@ -314,7 +310,7 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_put_a_file()
+    public function test_fetch_put_a_file(): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', static::$tokens['access-tokens']['token']);
@@ -340,7 +336,7 @@ class ClientTest extends LocalServerTestCase
     /**
      * In this case, the OAuth parameters will be appended to the request body which will not be parsed correctly
      */
-    public function test_fetch_post_odd_request()
+    public function test_fetch_post_odd_request(): void
     {
         $this->expectException(OAuthException::class);
         $consumer = 'consumer';
@@ -356,7 +352,7 @@ class ClientTest extends LocalServerTestCase
      * In this case, the OAuth parameters will be also be appended to the request body, but the properly encoded
      * parameters will parse correctly
      */
-    public function test_fetch_post_odd_request_two()
+    public function test_fetch_post_odd_request_two(): void
     {
         $this->expectException(OAuthException::class);
         $consumer = 'consumer';
@@ -371,7 +367,7 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_get_expecting_error()
+    public function test_fetch_get_expecting_error(): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', 'not-the-actual-secret');
@@ -394,7 +390,7 @@ class ClientTest extends LocalServerTestCase
     /**
      * @depends test_fetch_get
      */
-    public function test_fetch_get_expecting_error_with_debug_enabled()
+    public function test_fetch_get_expecting_error_with_debug_enabled(): void
     {
         $client = $this->getClient('consumer');
         $client->setToken('token', 'not-the-actual-secret');
@@ -408,7 +404,7 @@ class ClientTest extends LocalServerTestCase
         }
 
         $this->assertInstanceOf(OAuthException::class, $e);
-        $this->assertTrue(is_array($e->debugInfo), 'debugInfo property should be an array');
+        $this->assertIsArray($e->debugInfo, 'debugInfo property should be an array');
         $this->assertArrayHasKey('sbs', $e->debugInfo);
         $this->assertArrayHasKey('headers_sent', $e->debugInfo);
         $this->assertArrayHasKey('headers_recv', $e->debugInfo);
@@ -424,7 +420,7 @@ class ClientTest extends LocalServerTestCase
      *
      * @return OAuth
      */
-    private function getClient($consumer)
+    private function getClient($consumer): \OAuth
     {
         return new OAuth($consumer, static::$tokens['consumer-tokens'][$consumer]);
     }
@@ -434,7 +430,7 @@ class ClientTest extends LocalServerTestCase
      *
      * @param $responseInfo
      */
-    private function normalizeResponseInfo(&$responseInfo)
+    private function normalizeResponseInfo(&$responseInfo): void
     {
         if (!is_array($responseInfo)) {
             return;
@@ -453,7 +449,7 @@ class ClientTest extends LocalServerTestCase
      *
      * @return array
      */
-    private function parseResponseHeaders($responseHeader)
+    private function parseResponseHeaders($responseHeader): array
     {
         $headerLines = explode("\n", $responseHeader);
         $headers     = [];

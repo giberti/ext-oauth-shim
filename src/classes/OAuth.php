@@ -22,18 +22,15 @@ class OAuth
     public $debug = false;
 
     /**
-     * The sslChecks member can be set to FALSE to turn SSL checks off
+     * The sslChecks member can be set to 0 to turn SSL checks off
      *
      * @see disableSSLChecks()
      * @see enableSSLChecks()
      *
-     * @var bool $sslChecks
+     * @var int $sslChecks
      */
-    public $sslChecks = true;
+    public $sslChecks = OAUTH_SSLCHECK_BOTH;
 
-    /**
-     * @var $debugInfo
-     */
     public $debugInfo;
 
     /**
@@ -713,8 +710,8 @@ class OAuth
      *
      * @see https://php.net/manual/en/oauth.getrequestheader.php
      *
-     * @return string A string containing the generated request header or FALSE
-     *          on failure
+     * @return string|false A string containing the generated request header
+     *          or FALSE on failure
      */
     public function getRequestHeader($http_method, $url, $extra_parameters)
     {
@@ -960,8 +957,8 @@ class OAuth
      *
      * @see https://php.net/manual/en/oauth.settoken.php
      *
-     * @param string $token        The OAuth token.
-     * @param string $token_secret The OAuth token secret.
+     * @param string|null $token        The OAuth token.
+     * @param string|null $token_secret The OAuth token secret.
      *
      * @return bool
      */

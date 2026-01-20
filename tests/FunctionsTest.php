@@ -1,12 +1,11 @@
 <?php
 
-use PHPUnit\Framework\Error\Warning;
 use PHPUnit\Framework\TestCase;
 
 class FunctionsTest extends TestCase
 {
 
-    public function provide_oauth_get_sbs()
+    public function provide_oauth_get_sbs(): array
     {
         return [
             'basic string generation'                  => [
@@ -114,13 +113,13 @@ class FunctionsTest extends TestCase
      *
      * @dataProvider provide_oauth_get_sbs
      */
-    public function test_oauth_get_sbs($method, $uri, $params, $expected)
+    public function test_oauth_get_sbs($method, $uri, $params, $expected): void
     {
         $actual = oauth_get_sbs($method, $uri, $params);
         $this->assertEquals($expected, $actual, 'Incorrect signature base string');
     }
 
-    public function provide_invalid_urls()
+    public function provide_invalid_urls(): array
     {
         return [
             'Missing path'        => ['http://example.com'],
@@ -133,13 +132,13 @@ class FunctionsTest extends TestCase
     /**
      * @dataProvider provide_invalid_urls
      */
-    public function test_oauth_get_sbs_fails_invalid_urls($url)
+    public function test_oauth_get_sbs_fails_invalid_urls($url): void
     {
         $this->expectException(OAuthException::class);
         oauth_get_sbs('method', $url, []);
     }
 
-    public function provide_oauth_get_sbs_invalid_params()
+    public function provide_oauth_get_sbs_invalid_params(): array
     {
         return [
             'missing method' => [
@@ -158,7 +157,7 @@ class FunctionsTest extends TestCase
     /**
      * @dataProvider provide_oauth_get_sbs_invalid_params
      */
-    public function test_oauth_get_sbs_empty_parameter_errors($method, $url, $params)
+    public function test_oauth_get_sbs_empty_parameter_errors($method, $url, $params): void
     {
         $e = null;
         $returned = null;
@@ -169,12 +168,12 @@ class FunctionsTest extends TestCase
         $this->assertInstanceOf(
             Throwable::class,
             $e,
-            'Expected Throwable not raised, got ' . get_class($e) . ' instead'
+            'Expected Throwable not raised, got ' . get_debug_type($e) . ' instead'
         );
         $this->assertNull($returned);
     }
 
-    public function provide_oauth_urlencode()
+    public function provide_oauth_urlencode(): array
     {
         return [
             'properly encode scheme://host:port'                 => [
@@ -193,7 +192,7 @@ class FunctionsTest extends TestCase
      *
      * @dataProvider provide_oauth_urlencode
      */
-    public function test_oauth_urlencode($uri, $expected)
+    public function test_oauth_urlencode(string $uri, string $expected): void
     {
         $this->assertEquals($expected, oauth_urlencode($uri), 'Incorrect encoding');
     }
