@@ -6,7 +6,7 @@
  * The OAuth extension provides a simple interface to interact with data providers using the OAuth HTTP specification
  * to protect private resources.
  *
- * @see http://php.net/manual/en/class.oauth.php
+ * @see https://php.net/manual/en/class.oauth.php
  */
 class OAuth
 {
@@ -38,36 +38,34 @@ class OAuth
 
     /**
      * OAuth constants
-     *
-     * Make these protected|private once support for PHP 7.0 is dropped
      */
-    const OAUTH_CALLBACK         = 'oauth_callback';
-    const OAUTH_CONSUMER_KEY     = 'oauth_consumer_key';
-    const OAUTH_CONSUMER_SECRET  = 'oauth_consumer_secret';
-    const OAUTH_NONCE            = 'oauth_nonce';
-    const OAUTH_SESSION_HANDLE   = 'oauth_session_handle';
-    const OAUTH_SIGNATURE        = 'oauth_signature';
-    const OAUTH_SIGNATURE_METHOD = 'oauth_signature_method';
-    const OAUTH_TIMESTAMP        = 'oauth_timestamp';
-    const OAUTH_TOKEN            = 'oauth_token';
-    const OAUTH_TOKEN_SECRET     = 'oauth_token_secret';
-    const OAUTH_VERIFIER         = 'oauth_verifier';
-    const OAUTH_VERSION          = 'oauth_version';
+    private const OAUTH_CALLBACK         = 'oauth_callback';
+    private const OAUTH_CONSUMER_KEY     = 'oauth_consumer_key';
+    private const OAUTH_CONSUMER_SECRET  = 'oauth_consumer_secret';
+    private const OAUTH_NONCE            = 'oauth_nonce';
+    private const OAUTH_SESSION_HANDLE   = 'oauth_session_handle';
+    private const OAUTH_SIGNATURE        = 'oauth_signature';
+    private const OAUTH_SIGNATURE_METHOD = 'oauth_signature_method';
+    private const OAUTH_TIMESTAMP        = 'oauth_timestamp';
+    private const OAUTH_TOKEN            = 'oauth_token';
+    private const OAUTH_TOKEN_SECRET     = 'oauth_token_secret';
+    private const OAUTH_VERIFIER         = 'oauth_verifier';
+    private const OAUTH_VERSION          = 'oauth_version';
 
-    const EXCEPTION_MESSAGE_CONSUMER_KEY_EMPTY        = 'The consumer key cannot be empty';
-    const EXCEPTION_MESSAGE_CONSUMER_KEY_SECRET_EMPTY = 'The consumer secret cannot be empty';
-    const EXCEPTION_MESSAGE_INVALID_ACCESS_TOKEN_URL  = 'Invalid access token url length';
-    const EXCEPTION_MESSAGE_INVALID_AUTH_TYPE         = 'Invalid auth type';
-    const EXCEPTION_MESSAGE_INVALID_NONCE             = 'Invalid nonce';
-    const EXCEPTION_MESSAGE_INVALID_REQUEST_ENGINE    = 'Invalid request engine specified';
-    const EXCEPTION_MESSAGE_INVALID_REQUEST_TOKEN_URL = 'Invalid request token url length';
-    const EXCEPTION_MESSAGE_INVALID_TIMESTAMP         = 'Invalid timestamp';
-    const EXCEPTION_MESSAGE_INVALID_VERSION           = 'Invalid version';
-    const EXCEPTION_MESSAGE_CERT_PARSE_ERROR          = 'Could not parse RSA certificate';
+    private const EXCEPTION_MESSAGE_CONSUMER_KEY_EMPTY        = 'The consumer key cannot be empty';
+    private const EXCEPTION_MESSAGE_CONSUMER_KEY_SECRET_EMPTY = 'The consumer secret cannot be empty';
+    private const EXCEPTION_MESSAGE_INVALID_ACCESS_TOKEN_URL  = 'Invalid access token url length';
+    private const EXCEPTION_MESSAGE_INVALID_AUTH_TYPE         = 'Invalid auth type';
+    private const EXCEPTION_MESSAGE_INVALID_NONCE             = 'Invalid nonce';
+    private const EXCEPTION_MESSAGE_INVALID_REQUEST_ENGINE    = 'Invalid request engine specified';
+    private const EXCEPTION_MESSAGE_INVALID_REQUEST_TOKEN_URL = 'Invalid request token url length';
+    private const EXCEPTION_MESSAGE_INVALID_TIMESTAMP         = 'Invalid timestamp';
+    private const EXCEPTION_MESSAGE_INVALID_VERSION           = 'Invalid version';
+    private const EXCEPTION_MESSAGE_CERT_PARSE_ERROR          = 'Could not parse RSA certificate';
 
-    const EXCEPTION_CODE_INTERNAL = 503;
+    private const EXCEPTION_CODE_INTERNAL = 503;
 
-    const EXCEPTION_MESSAGE_FETCH_TEMPLATE = 'Invalid auth/bad request (got a %d, expected HTTP/1.1 20X or a redirect)';
+    private const EXCEPTION_MESSAGE_FETCH_TEMPLATE = 'Invalid auth/bad request (got a %d, expected HTTP/1.1 20X or a redirect)';
 
     // OAuth construction parts
     private $consumerKey;
@@ -96,7 +94,7 @@ class OAuth
     /**
      * Creates a new OAuth object
      *
-     * @see http://php.net/manual/en/oauth.construct.php
+     * @see https://php.net/manual/en/oauth.construct.php
      *
      * @param string $consumer_key     The consumer key provided by the service
      *                                 provider.
@@ -141,11 +139,11 @@ class OAuth
      * Turns off verbose request information (off by default). Alternatively,
      * the debug property can be set to a FALSE value to turn debug off.
      *
-     * @see http://php.net/manual/en/oauth.disabledebug.php
+     * @see https://php.net/manual/en/oauth.disabledebug.php
      *
      * @return bool
      */
-    public function disableDebug()
+    public function disableDebug(): bool
     {
         $this->debug = false;
 
@@ -156,11 +154,11 @@ class OAuth
      * Disable redirects from being followed automatically, thus allowing the
      * request to be manually redirected.
      *
-     * @see http://php.net/manual/en/oauth.disableredirects.php
+     * @see https://php.net/manual/en/oauth.disableredirects.php
      *
      * @return bool
      */
-    public function disableRedirects()
+    public function disableRedirects(): bool
     {
         $this->redirects = false;
 
@@ -172,11 +170,11 @@ class OAuth
      * for production environments. Alternatively, the sslChecks member can be
      * set to FALSE to turn SSL checks off.
      *
-     * @see http://php.net/manual/en/oauth.disablesslchecks.php
+     * @see https://php.net/manual/en/oauth.disablesslchecks.php
      *
      * @return bool
      */
-    public function disableSSLChecks()
+    public function disableSSLChecks(): bool
     {
         $this->sslChecks = OAUTH_SSLCHECK_NONE;
 
@@ -188,11 +186,11 @@ class OAuth
      * information is stored in the debugInfo member. Alternatively, the debug
      * member can be set to a non-FALSE value to turn debug on.
      *
-     * @see http://php.net/manual/en/oauth.enabledebug.php
+     * @see https://php.net/manual/en/oauth.enabledebug.php
      *
      * @return bool
      */
-    public function enableDebug()
+    public function enableDebug(): bool
     {
         $this->debug = true;
 
@@ -202,11 +200,11 @@ class OAuth
     /**
      * Follow and sign redirects automatically, which is enabled by default.
      *
-     * @see http://php.net/manual/en/oauth.enableredirects.php
+     * @see https://php.net/manual/en/oauth.enableredirects.php
      *
      * @return bool
      */
-    public function enableRedirects()
+    public function enableRedirects(): bool
     {
         $this->redirects = true;
 
@@ -218,11 +216,11 @@ class OAuth
      * default). Alternatively, the sslChecks member can be set to a non-FALSE
      * value to turn SSL checks off.
      *
-     * @see http://php.net/manual/en/oauth.enablesslchecks.php
+     * @see https://php.net/manual/en/oauth.enablesslchecks.php
      *
      * @return bool
      */
-    public function enableSSLChecks()
+    public function enableSSLChecks(): bool
     {
         $this->sslChecks = OAUTH_SSLCHECK_BOTH;
 
@@ -232,7 +230,7 @@ class OAuth
     /**
      * Fetch a resource.
      *
-     * @see http://php.net/manual/en/oauth.fetch.php
+     * @see https://php.net/manual/en/oauth.fetch.php
      *
      * @param string       $protected_resource_url
      * @param array|string $extra_parameters
@@ -247,7 +245,7 @@ class OAuth
         $extra_parameters = null,
         $http_method = OAUTH_HTTP_METHOD_GET,
         array $http_headers = []
-    ) {
+    ): bool {
         if (!$this->generateSignature($http_method, $protected_resource_url, $extra_parameters)) {
             return false;
         }
@@ -295,7 +293,7 @@ class OAuth
                 break;
 
             case OAUTH_AUTH_TYPE_URI:
-                if (false === stripos($protected_resource_url, '?')) {
+                if (!str_contains($protected_resource_url, '?')) {
                     $finalUrl .= '?' . http_build_query($oauthParams);
                 } else {
                     $finalUrl .= '&' . http_build_query($oauthParams);
@@ -308,7 +306,7 @@ class OAuth
         }
 
         // Pass the request to the appropriate engine
-        $uaTemplate = 'Giberti/ext-oauth-shim (%s; PHP ' . phpversion() . ') ' . PHP_OS . ' (like PECL-OAuth/2.0.2)';
+        $uaTemplate = 'Giberti/ext-oauth-shim (%s; PHP ' . PHP_VERSION . ') ' . PHP_OS . ' (like PECL-OAuth/2.0.2)';
         switch ($this->requestEngine) {
             case OAUTH_REQENGINE_STREAMS:
                 $http_headers['User-Agent'] = sprintf($uaTemplate, 'stream');
@@ -355,7 +353,7 @@ class OAuth
         return true;
     }
 
-    private function fetchCurl($url, $params, $method, $headers)
+    private function fetchCurl($url, $params, $method, $headers): bool
     {
         // Set the request options
         $options = [
@@ -394,7 +392,7 @@ class OAuth
                     } else {
                         $additionalParams = $params;
                     }
-                    if (stripos($options[CURLOPT_URL], '?')) {
+                    if (strpos($options[CURLOPT_URL], '?')) {
                         $options[CURLOPT_URL] .= '&' . $additionalParams;
                     } else {
                         $options[CURLOPT_URL] .= '?' . $additionalParams;
@@ -441,7 +439,7 @@ class OAuth
         return true;
     }
 
-    private function fetchStream($url, $params, $method, $headers)
+    private function fetchStream($url, $params, $method, $headers): bool
     {
 
         $content = is_array($params) ? http_build_query($params) : $params;
@@ -456,7 +454,7 @@ class OAuth
         switch($method) {
             case OAUTH_HTTP_METHOD_HEAD:
             case OAUTH_HTTP_METHOD_GET:
-                if ($content && false === strpos($url, '?')) {
+                if ($content && !str_contains($url, '?')) {
                     $url .= "?{$content}";
                 } elseif ($content) {
                     $url .= "&{$content}";
@@ -469,7 +467,7 @@ class OAuth
 
         // make the request
         $context          = stream_context_create($config);
-        $stream           = fopen($url, 'r', false, $context);
+        $stream           = fopen($url, 'rb', false, $context);
         $response         = stream_get_contents($stream);
         $responseMetadata = stream_get_meta_data($stream);
         fclose($stream);
@@ -489,13 +487,13 @@ class OAuth
         foreach ($responseMetadata['wrapper_data'] as $idx => $header) {
             if (0 === $idx) {
                 // Get the response code from `HTTP/1.1 200 OK`
-                list($junk, $this->lastResponseInfo['http_code']) = explode(" ", $header);
+                [$junk, $this->lastResponseInfo['http_code']] = explode(" ", $header);
                 continue;
             }
 
             // content type
             if (false !== stripos($header, 'content-type')) {
-                list($junk, $value) = explode(':', $header);
+                [$junk, $value] = explode(':', $header);
                 $value                                  = explode(';', $value);
                 $this->lastResponseInfo['content_type'] = trim($value[0]);
                 continue;
@@ -503,7 +501,7 @@ class OAuth
 
             // content length
             if (false !== stripos($header, 'content-length')) {
-                list($junk, $value) = explode(':', $header);
+                [$junk, $value] = explode(':', $header);
                 $this->lastResponseInfo['size_download'] = (int)trim($value);
                 continue;
             }
@@ -517,9 +515,9 @@ class OAuth
      *
      * @param array $headers
      *
-     * @return array
+     * @return string
      */
-    private function buildHeaders(array $headers)
+    private function buildHeaders(array $headers): string
     {
         // Map the header key/value pairs to the format cURL|stream_context expects
         $headerLines = [];
@@ -533,7 +531,7 @@ class OAuth
     /**
      * Generate a signature based on the final HTTP method, URL and a string/array of parameters.
      *
-     * @see http://php.net/manual/en/oauth.generatesignature.php
+     * @see https://php.net/manual/en/oauth.generatesignature.php
      *
      * @param string       $http_method      HTTP method for request
      * @param string       $url              URL for request
@@ -611,7 +609,7 @@ class OAuth
      * Fetch an access token, secret and any additional response parameters
      * from the service provider.
      *
-     * @see http://php.net/manual/en/oauth.getaccesstoken.php
+     * @see https://php.net/manual/en/oauth.getaccesstoken.php
      *
      * @param string $access_token_url    URL to the access token API.
      * @param string $auth_session_handle Authorization session handle, this parameter does not have any citation in
@@ -623,8 +621,7 @@ class OAuth
      *                                    token is exchanged at the oauth_callback URL).
      * @param string $http_method         HTTP method to use, e.g. GET or POST.
      *
-     * @return array|false Returns an array containing the parsed OAuth
-     *          response on success or FALSE on failure.
+     * @return array Returns an array containing the parsed OAuth response on success
      * @throws OAuthException
      */
     public function getAccessToken(
@@ -632,7 +629,7 @@ class OAuth
         $auth_session_handle = null,
         $verifier_token = null,
         $http_method = OAUTH_HTTP_METHOD_POST
-    ) {
+    ): array {
         if (empty($access_token_url)) {
             throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_ACCESS_TOKEN_URL, self::EXCEPTION_CODE_INTERNAL);
         }
@@ -659,13 +656,13 @@ class OAuth
      * Gets the Certificate Authority information, which includes the ca_path
      * and ca_info set by static::setCAPath().
      *
-     * @see http://php.net/manual/en/oauth.getcapath.php
+     * @see https://php.net/manual/en/oauth.getcapath.php
      *
      * @return array An array of Certificate Authority information,
      *          specifically as ca_path and ca_info keys within the returned
      *          associative array.
      */
-    public function getCAPath()
+    public function getCAPath(): array
     {
         return [
             'ca_info' => $this->caInfo,
@@ -676,11 +673,11 @@ class OAuth
     /**
      * Get the raw response of the most recent request.
      *
-     * @see http://php.net/manual/en/oauth.getlastresponse.php
+     * @see https://php.net/manual/en/oauth.getlastresponse.php
      *
      * @return string Returns a string containing the last response.
      */
-    public function getLastResponse()
+    public function getLastResponse(): string
     {
         return $this->lastResponse;
     }
@@ -688,7 +685,7 @@ class OAuth
     /**
      * Returns a string containing the last response.
      *
-     * @see http://php.net/manual/en/oauth.getlastresponseheaders.php
+     * @see https://php.net/manual/en/oauth.getlastresponseheaders.php
      *
      * @return string|false A string containing the last response's headers or
      *          FALSE on failure
@@ -701,11 +698,11 @@ class OAuth
     /**
      * Get HTTP information about the last response.
      *
-     * @see http://php.net/manual/en/oauth.getlastresponseinfo.php
+     * @see https://php.net/manual/en/oauth.getlastresponseinfo.php
      *
      * @return array
      */
-    public function getLastResponseInfo()
+    public function getLastResponseInfo(): array
     {
         return $this->lastResponseInfo;
     }
@@ -714,7 +711,7 @@ class OAuth
      * Generate OAuth header string signature based on the final HTTP method, U
      * RL and a string/array of parameters
      *
-     * @see http://php.net/manual/en/oauth.getrequestheader.php
+     * @see https://php.net/manual/en/oauth.getrequestheader.php
      *
      * @return string A string containing the generated request header or FALSE
      *          on failure
@@ -756,7 +753,7 @@ class OAuth
      * Fetch a request token, secret and any additional response parameters
      * from the service provider.
      *
-     * @see http://php.net/manual/en/oauth.getrequesttoken.php
+     * @see https://php.net/manual/en/oauth.getrequesttoken.php
      *
      * @param string $request_token_url URL to the request token API.
      * @param string $callback_url      OAuth callback URL. If $callback_url is
@@ -764,10 +761,10 @@ class OAuth
      *                                  OAuth 2009.1 advisory.
      * @param string $http_method       HTTP method to use, e.g. GET or POST.
      *
-     * @return string
+     * @return array
      * @throws OAuthException
      */
-    public function getRequestToken($request_token_url, $callback_url = null, $http_method = OAUTH_HTTP_METHOD_POST)
+    public function getRequestToken($request_token_url, $callback_url = null, $http_method = OAUTH_HTTP_METHOD_POST): array
     {
         if (empty($request_token_url)) {
             throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_REQUEST_TOKEN_URL, self::EXCEPTION_CODE_INTERNAL);
@@ -792,7 +789,7 @@ class OAuth
     /**
      * Set where the OAuth parameters should be passed.
      *
-     * @see http://php.net/manual/en/oauth.setauthtype.php
+     * @see https://php.net/manual/en/oauth.setauthtype.php
      *
      * @param int $auth_type Auth_type can be one of the pre-defined
      *                       OAUTH_AUTH_* constants flags
@@ -802,7 +799,7 @@ class OAuth
      *
      * @throws OAuthException
      */
-    public function setAuthType($auth_type)
+    public function setAuthType($auth_type): bool
     {
         switch ($auth_type) {
             case OAUTH_AUTH_TYPE_AUTHORIZATION:
@@ -818,14 +815,14 @@ class OAuth
     }
 
     /**
-     * @see http://php.net/manual/en/oauth.setcapath.php
+     * @see https://php.net/manual/en/oauth.setcapath.php
      *
      * @param string $ca_path
      * @param string $ca_info
      *
      * @return true
      */
-    public function setCAPath($ca_path, $ca_info)
+    public function setCAPath($ca_path, $ca_info): bool
     {
         $this->caPath = $ca_path;
         $this->caInfo = $ca_info;
@@ -836,7 +833,7 @@ class OAuth
     /**
      * Sets the nonce for all subsequent requests.
      *
-     * @see http://php.net/manual/en/oauth.setnonce.php
+     * @see https://php.net/manual/en/oauth.setnonce.php
      *
      * @param string $nonce The value for oauth_nonce.
      *
@@ -844,9 +841,9 @@ class OAuth
      *          considered invalid.
      * @throws OAuthException
      */
-    public function setNonce($nonce)
+    public function setNonce(string $nonce): bool
     {
-        if (strlen($nonce) < 1) {
+        if ($nonce === '') {
             throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_NONCE, self::EXCEPTION_CODE_INTERNAL);
         }
 
@@ -858,7 +855,7 @@ class OAuth
     /**
      * Sets the Request Engine, that will be sending the HTTP requests.
      *
-     * @see http://php.net/manual/en/oauth.setrequestengine.php
+     * @see https://php.net/manual/en/oauth.setrequestengine.php
      *
      * @param int $reqengine The desired request engine. Set to
      *                       OAUTH_REQENGINE_STREAMS to use PHP Streams, or
@@ -868,7 +865,7 @@ class OAuth
      * @throws OAuthException Emits an OAuthException exception if an invalid
      *          request engine is chosen.
      */
-    public function setRequestEngine($reqengine)
+    public function setRequestEngine($reqengine): void
     {
         $validEngines = [
             OAUTH_REQENGINE_STREAMS => true,
@@ -889,7 +886,7 @@ class OAuth
     /**
      * Sets the RSA certificate.
      *
-     * @see http://php.net/manual/en/oauth.setrsacertificate.php
+     * @see https://php.net/manual/en/oauth.setrsacertificate.php
      *
      * @param string $cert The RSA certificate.
      *
@@ -897,7 +894,7 @@ class OAuth
      *          certificate cannot be parsed.)
      * @throws OAuthException
      */
-    public function setRSACertificate($cert)
+    public function setRSACertificate($cert): bool
     {
         if (!extension_loaded('openssl') || !function_exists('openssl_pkey_get_private')) {
             trigger_error('OpenSSL not installed');
@@ -916,13 +913,13 @@ class OAuth
     /**
      * Tweak specific SSL checks for requests.
      *
-     * @see http://php.net/manual/en/oauth.setsslchecks.php
+     * @see https://php.net/manual/en/oauth.setsslchecks.php
      *
      * @param int $sslcheck
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      */
-    public function setSSLChecks($sslcheck)
+    public function setSSLChecks($sslcheck): bool
     {
         switch ($sslcheck) {
             case OAUTH_SSLCHECK_HOST:
@@ -938,17 +935,17 @@ class OAuth
     /**
      * Sets the OAuth timestamp for subsequent requests.
      *
-     * @see http://php.net/manual/en/oauth.settimestamp.php
+     * @see https://php.net/manual/en/oauth.settimestamp.php
      *
-     * @param int $timestamp The timestamp.
+     * @param string $timestamp The timestamp.
      *
      * @return bool Returns TRUE, unless the timestamp is invalid, in which
      *          case FALSE is returned.
      * @throws OAuthException
      */
-    public function setTimestamp($timestamp)
+    public function setTimestamp(string $timestamp): bool
     {
-        if (strlen($timestamp) < 1) {
+        if ($timestamp === '') {
             throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_TIMESTAMP, self::EXCEPTION_CODE_INTERNAL);
         }
 
@@ -961,14 +958,14 @@ class OAuth
     /**
      * Set the token and secret for subsequent requests.
      *
-     * @see http://php.net/manual/en/oauth.settoken.php
+     * @see https://php.net/manual/en/oauth.settoken.php
      *
      * @param string $token        The OAuth token.
      * @param string $token_secret The OAuth token secret.
      *
      * @return bool
      */
-    public function setToken($token, $token_secret)
+    public function setToken($token, $token_secret): bool
     {
         $this->token       = $token;
         $this->tokenSecret = $token_secret;
@@ -979,16 +976,16 @@ class OAuth
     /**
      * Sets the OAuth version for subsequent requests
      *
-     * @see http://php.net/manual/en/oauth.setversion.php
+     * @see https://php.net/manual/en/oauth.setversion.php
      *
      * @param string $version OAuth version, default value is always "1.0"
      *
      * @return bool Returns TRUE on success or FALSE on failure.
      * @throws OAuthException
      */
-    public function setVersion($version)
+    public function setVersion(string $version): bool
     {
-        if (strlen($version) < 1) {
+        if ($version === '') {
             throw new OAuthException(self::EXCEPTION_MESSAGE_INVALID_VERSION, self::EXCEPTION_CODE_INTERNAL);
         }
 

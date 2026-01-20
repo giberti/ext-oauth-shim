@@ -13,7 +13,7 @@ if (!function_exists('oauth_get_sbs')) {
     /**
      * Generates a Signature Base String according to pecl/oauth.
      *
-     * @see http://php.net/manual/en/function.oauth-get-sbs.php
+     * @see https://php.net/manual/en/function.oauth-get-sbs.php
      *
      * @param string $http_method
      * @param string $uri
@@ -51,7 +51,7 @@ if (!function_exists('oauth_get_sbs')) {
             $queryString = $uriPieces['query'];
             parse_str($queryString, $get);
             unset($uriPieces['query']);
-        };
+        }
 
         // Rebuild the Uri without the query
         if (function_exists('http_build_url')) {
@@ -71,7 +71,7 @@ if (!function_exists('oauth_get_sbs')) {
         ksort($request_parameters);
         $parameters = "";
         foreach ($request_parameters as $key => $value) {
-            if (strlen($parameters) > 0) {
+            if ($parameters !== '') {
                 $parameters .= '&';
             }
             $parameters .= rawurlencode($key) . '=' . rawurlencode($value);
@@ -90,7 +90,7 @@ if (!function_exists('oauth_urlencode')) {
     /**
      * Encode a URI to RFC 3986
      *
-     * @see http://php.net/manual/en/function.oauth-urlencode.php
+     * @see https://php.net/manual/en/function.oauth-urlencode.php
      *
      * @param string $uri
      *

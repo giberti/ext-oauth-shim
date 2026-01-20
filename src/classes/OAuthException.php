@@ -6,7 +6,7 @@
  * This exception is thrown when exceptional errors occur while using the OAuth extension and contains useful debugging
  * information.
  *
- * @see http://php.net/manual/en/class.oauthexception.php
+ * @see https://php.net/manual/en/class.oauthexception.php
  */
 class OAuthException extends \Exception
 {

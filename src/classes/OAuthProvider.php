@@ -90,8 +90,8 @@ class OAuthProvider
      */
     private $constructorParams = [];
 
-    const EXCEPTION_MESSAGE_MISSING_REQUIRED_PARAMS = 'Missing required parameters';
-    const EXCEPTION_MESSAGE_SIGNATURE_MISMATCH      = 'Signatures do not match';
+    private const EXCEPTION_MESSAGE_MISSING_REQUIRED_PARAMS = 'Missing required parameters';
+    private const EXCEPTION_MESSAGE_SIGNATURE_MISMATCH      = 'Signatures do not match';
 
     /**
      * Create the provider object
@@ -114,42 +114,39 @@ class OAuthProvider
      *
      * @return bool
      */
-    final public function addRequiredParameter($req_params)
+    final public function addRequiredParameter($req_params): bool
     {
         return $this->requiredParameters[$req_params] = true;
     }
 
-    public function callConsumerHandler()
+    public function callConsumerHandler(): void
     {
         $response = call_user_func($this->consumerHandlerFunction, $this);
-        switch ($response) {
-            case OAUTH_OK;
-                return;
-            default:
-                throw new \OAuthException('consumer issue', $response);
+        if ($response == OAUTH_OK) {
+            return;
         }
+
+        throw new \OAuthException('consumer issue', $response);
     }
 
-    public function callTimestampNonceHandler()
+    public function callTimestampNonceHandler(): void
     {
         $response = call_user_func($this->timestampNonceHandlerFunction, $this);
-        switch ($response) {
-            case OAUTH_OK;
-                return;
-            default:
-                throw new \OAuthException('timestamp nonce issue', $response);
+        if ($response == OAUTH_OK) {
+            return;
         }
+
+        throw new \OAuthException('timestamp nonce issue', $response);
     }
 
-    public function callTokenHandler()
+    public function callTokenHandler(): int
     {
         $response = call_user_func($this->tokenHandlerFunction, $this);
-        switch ($response) {
-            case OAUTH_OK;
-                return OAUTH_OK;
-            default:
-                throw new \OAuthException('token issue', $response);
+        if ($response == OAUTH_OK) {
+            return OAUTH_OK;
         }
+
+        throw new \OAuthException('token issue', $response);
     }
 
     /**
@@ -160,10 +157,10 @@ class OAuthProvider
      *
      * @throws OAuthException
      */
-    public function checkOAuthRequest($uri = null, $method = null)
+    public function checkOAuthRequest($uri = null, $method = null): void
     {
-        $uri    = isset($uri) ? $uri : $this->getRequestUri();
-        $method = isset($method) ? $method : $this->getRequestMethod();
+        $uri    = $uri ?? $this->getRequestUri();
+        $method = $method ?? $this->getRequestMethod();
 
         $requestUrl    = $this->getFullRequestUrl($uri);
         $requestParams = $this->getRequestParams();
@@ -219,7 +216,7 @@ class OAuthProvider
 
     }
 
-    public function consumerHandler(callable $callback_function)
+    public function consumerHandler(callable $callback_function): void
     {
         $this->consumerHandlerFunction = $callback_function;
     }
@@ -233,7 +230,7 @@ class OAuthProvider
      *
      * @return string The requested random bytes
      */
-    final public static function generateToken($size, $strong = false)
+    final public static function generateToken($size, $strong = false): string
     {
         if ($size < 1) {
             trigger_error('OAuthProvider::generateToken(): Cannot generate token with a size of less than 1 or greater than ' . PHP_INT_MAX, E_USER_WARNING);
@@ -250,7 +247,7 @@ class OAuthProvider
      *
      * @return void
      */
-    public function is2LeggedEndpoint($params_array)
+    public function is2LeggedEndpoint($params_array): void
     {
         throw new Exception('Not implemented');
     }
@@ -263,7 +260,7 @@ class OAuthProvider
      *
      * @return void
      */
-    public function isRequestTokenEndpoint($will_issue_request_token)
+    public function isRequestTokenEndpoint($will_issue_request_token): void
     {
         throw new Exception('Not implemented');
     }
@@ -275,7 +272,7 @@ class OAuthProvider
      *
      * @return bool
      */
-    final public function removeRequiredParameter($req_params)
+    final public function removeRequiredParameter($req_params): bool
     {
         unset($this->requiredParameters[$req_params]);
 
@@ -288,7 +285,7 @@ class OAuthProvider
      * @param OAuthException $oauthexception
      * @param bool           $send_headers
      */
-    final public static function reportProblem($oauthexception, $send_headers = true)
+    final public static function reportProblem($oauthexception, $send_headers = true): void
     {
         throw new Exception('Not implemented');
     }
@@ -301,12 +298,12 @@ class OAuthProvider
      *
      * @return bool
      */
-    final public function setParam($param_key, $param_val = null)
+    final public function setParam($param_key, $param_val = null): bool
     {
         throw new Exception('Not implemented');
     }
 
-    final public function setRequestTokenPath($path)
+    final public function setRequestTokenPath($path): bool
     {
         // @todo when would this return false?
         $this->requestTokenPath = $path;
@@ -314,12 +311,12 @@ class OAuthProvider
         return true;
     }
 
-    public function timestampNonceHandler(callable $callback_function)
+    public function timestampNonceHandler(callable $callback_function): void
     {
         $this->timestampNonceHandlerFunction = $callback_function;
     }
 
-    public function tokenHandler(callable $callback_function)
+    public function tokenHandler(callable $callback_function): void
     {
         $this->tokenHandlerFunction = $callback_function;
     }
@@ -331,7 +328,7 @@ class OAuthProvider
      *
      * @return string Fully qualified Url `https://example.com/oauth/request-token?foo=bar`
      */
-    private function getFullRequestUrl($uri)
+    private function getFullRequestUrl($uri): string
     {
         $request = parse_url($uri);
 
@@ -370,7 +367,7 @@ class OAuthProvider
     /**
      * @return string The HTTP method used for this request
      */
-    private function getRequestMethod()
+    private function getRequestMethod(): string
     {
         return $_SERVER['REQUEST_METHOD'];
     }
@@ -379,7 +376,7 @@ class OAuthProvider
      *
      * @return string The Uri that was requested
      */
-    private function getRequestUri()
+    private function getRequestUri(): string
     {
         $uri   = $_SERVER['REQUEST_URI'];
         $parts = parse_url($uri);
@@ -392,7 +389,7 @@ class OAuthProvider
      *
      * @return array Parameters passed via query string or POST
      */
-    private function getRequestParams()
+    private function getRequestParams(): array
     {
         $params = $_REQUEST;
         if (0 === count($params)) {
@@ -416,17 +413,17 @@ class OAuthProvider
      *                   'oauth_signature'    => 'signature'
      *               ]
      */
-    private function parseAuthorizationHeader($header)
+    private function parseAuthorizationHeader($header): array
     {
         $values = [];
         $header = substr($header, 5);
         $pairs  = explode(',', $header);
         foreach ($pairs as $pair) {
             $pair = trim($pair); // remove optional whitespace
-            list($key, $value) = explode('=', $pair);
-            if (0 === strpos($value, '"') || 0 === strpos($value, "'")) {
+            [$key, $value] = explode('=', $pair);
+            if (str_starts_with($value, '"') || str_starts_with($value, "'")) {
                 // remove optional `'` or `"`
-                $value = substr($value, 1, strlen($value) - 2);
+                $value = substr($value, 1, -1);
             }
             $values[$key] = rawurldecode($value);
         }
@@ -439,35 +436,33 @@ class OAuthProvider
      *
      * @return array $params;
      */
-    private function getOAuthParams()
+    private function getOAuthParams(): array
     {
         $params = [];
 
         // Pull parameters from Authorization header
-        $header = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : null;
-        if ($header) {
-            if ('oauth' === strtolower(substr($header, 0, 5))) {
-                $params += $this->parseAuthorizationHeader($header);
-            }
+        $header = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+        if ($header && stripos($header, 'oauth') === 0) {
+            $params += $this->parseAuthorizationHeader($header);
         }
 
         // Pull parameters from $_POST
         foreach ($_POST as $key => $value) {
-            if ('oauth_' === substr($key, 0, 6)) {
+            if (str_starts_with($key, 'oauth_')) {
                 $params[$key] = $value;
             }
         }
 
         // Pull parameters from $_GET
         foreach ($_GET as $key => $value) {
-            if ('oauth_' === substr($key, 0, 6)) {
+            if (str_starts_with($key, 'oauth_')) {
                 $params[$key] = $value;
             }
         }
 
         // Pull from constructor values
         foreach ($this->constructorParams as $key => $value) {
-            if ('oauth_' === substr($key, 0, 6)) {
+            if (str_starts_with($key, 'oauth_')) {
                 $params[$key] = $value;
             }
         }
