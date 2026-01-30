@@ -123,7 +123,7 @@ class OAuthProvider
     {
         $response = call_user_func($this->consumerHandlerFunction, $this);
         switch ($response) {
-            case OAUTH_OK;
+            case OAUTH_OK:
                 return;
             default:
                 throw new \OAuthException('consumer issue', $response);
@@ -134,7 +134,7 @@ class OAuthProvider
     {
         $response = call_user_func($this->timestampNonceHandlerFunction, $this);
         switch ($response) {
-            case OAUTH_OK;
+            case OAUTH_OK:
                 return;
             default:
                 throw new \OAuthException('timestamp nonce issue', $response);
@@ -145,7 +145,7 @@ class OAuthProvider
     {
         $response = call_user_func($this->tokenHandlerFunction, $this);
         switch ($response) {
-            case OAUTH_OK;
+            case OAUTH_OK:
                 return OAUTH_OK;
             default:
                 throw new \OAuthException('token issue', $response);
@@ -236,7 +236,12 @@ class OAuthProvider
     final public static function generateToken($size, $strong = false)
     {
         if ($size < 1) {
-            trigger_error('OAuthProvider::generateToken(): Cannot generate token with a size of less than 1 or greater than ' . PHP_INT_MAX, E_USER_WARNING);
+            $message = 'OAuthProvider::generateToken(): Cannot generate token with a size of less than 1 or greater than ' . PHP_INT_MAX;
+            trigger_error($message, E_USER_WARNING);
+
+            if (PHP_MAJOR_VERSION >= 8) {
+                throw new OAuthException($message);
+            }
         }
 
         // PHP7 only!

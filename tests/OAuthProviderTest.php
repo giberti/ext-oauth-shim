@@ -124,7 +124,7 @@ class OAuthProviderTest extends TestCase {
         try {
             OAuthProvider::generateToken(0);
         } catch (Throwable $e) {}
-        $this->assertInstanceOf(\PHPUnit\Framework\Error\Warning::class, $e);
+        $this->assertInstanceOf(\Throwable::class, $e);
         $this->assertStringStartsWith('OAuthProvider::generateToken(): Cannot generate token with a size of less than 1 or greater than ', $e->getMessage());
     }
 

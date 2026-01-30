@@ -252,7 +252,7 @@ class OAuthTest extends TestCase
     }
 
 
-    public function provide_signatureTestData()
+    public static function provide_signatureTestData()
     {
         return [
             'simple get'                 => [
@@ -367,7 +367,7 @@ class OAuthTest extends TestCase
      */
     public function test_getRequestHeader()
     {
-        $data      = $this->provide_signatureTestData()['simple get'];
+        $data      = self::provide_signatureTestData()['simple get'];
         $method    = $data[0];
         $url       = $data[1];
         $params    = $data[2];

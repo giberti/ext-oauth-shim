@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 class FunctionsTest extends TestCase
 {
 
-    public function provide_oauth_get_sbs()
+    public static function provide_oauth_get_sbs()
     {
         return [
             'basic string generation'                  => [
@@ -120,7 +120,7 @@ class FunctionsTest extends TestCase
         $this->assertEquals($expected, $actual, 'Incorrect signature base string');
     }
 
-    public function provide_invalid_urls()
+    public static function provide_invalid_urls()
     {
         return [
             'Missing path'        => ['http://example.com'],
@@ -139,7 +139,7 @@ class FunctionsTest extends TestCase
         oauth_get_sbs('method', $url, []);
     }
 
-    public function provide_oauth_get_sbs_invalid_params()
+    public static function provide_oauth_get_sbs_invalid_params()
     {
         return [
             'missing method' => [
@@ -174,7 +174,7 @@ class FunctionsTest extends TestCase
         $this->assertNull($returned);
     }
 
-    public function provide_oauth_urlencode()
+    public static function provide_oauth_urlencode()
     {
         return [
             'properly encode scheme://host:port'                 => [

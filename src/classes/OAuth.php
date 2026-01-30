@@ -426,7 +426,9 @@ class OAuth
         curl_setopt_array($curl, $options);
         $response     = curl_exec($curl);
         $responseInfo = curl_getinfo($curl);
-        curl_close($curl);
+        if (PHP_MAJOR_VERSION <= 7) {
+            curl_close($curl);
+        }
 
         $this->lastResponseHeaders = trim(substr($response, 0, $responseInfo['header_size']));
         $this->lastResponse        = substr($response, $responseInfo['header_size']);

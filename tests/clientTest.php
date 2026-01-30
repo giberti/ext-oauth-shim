@@ -172,7 +172,7 @@ class ClientTest extends LocalServerTestCase
         $this->assertTrue(is_array($data));
     }
 
-    public function provideStatusCodes()
+    public static function provideStatusCodes()
     {
         return [
             'OK'                => [200],
@@ -232,7 +232,7 @@ class ClientTest extends LocalServerTestCase
         $this->assertEquals('baz', $get['bar']);
     }
 
-    function provideRequestEngines() {
+    public static function provideRequestEngines() {
         return [
             'ext-curl' => [
                 null // OAUTH_REQENGINE_CURL isn't defined in PECL extension
